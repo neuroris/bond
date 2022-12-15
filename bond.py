@@ -127,7 +127,7 @@ class Bond:
         coupon_days.append(self.maturity_date)
         return coupon_days
 
-    def get_coupon(self):
+    def get_coupon_deprecated(self):
         if self.compound_interest:
             total_period = self.maturity_date - self.issue_date
             # total_remaining_days = total_period.days
@@ -135,6 +135,20 @@ class Bond:
             future_value = self.get_interest(10000, self.issue_date, self.maturity_date, self.coupon_rate) + 10000
             coupon = int(future_value - 10000) * self.amount
         else:
+            coupon = int(((self.face_value * (self.coupon_rate * 1000) * self.amount / self.frequency) / 100) / 1000)
+        return coupon
+
+    def get_coupon(self):
+        coupon = 0
+        if self.type == 'coupon':
+            coupon = int(((self.face_value * (self.coupon_rate * 1000) * self.amount / self.frequency) / 100) / 1000)
+        elif self.type == 'compound':
+            # total_period = self.maturity_date - self.issue_date
+            # total_remaining_days = total_period.days
+            # future_value = self.get_fv_theoretical(10000, self.coupon_rate, total_remaining_days)
+            future_value = self.get_interest(10000, self.issue_date, self.maturity_date, self.coupon_rate) + 10000
+            coupon = int(future_value - 10000) * self.amount
+        elif self.type == 'compound-simple':
             coupon = int(((self.face_value * (self.coupon_rate * 1000) * self.amount / self.frequency) / 100) / 1000)
         return coupon
 
@@ -152,7 +166,7 @@ class Bond:
             interest_income = self.coupon * (self.coupon_number - 1) + self.last_coupon
         return interest_income
 
-    def get_tax(self):
+    def get_tax_deprecated(self):
         first_coupon_date = self.coupon_days[0]
         first_period = first_coupon_date - self.previous_coupon_date
         first_imposing_period = first_coupon_date - self.outset_date
@@ -175,6 +189,32 @@ class Bond:
             self.last_tax_base = self.last_coupon
             self.last_tax = self.calculate_tax(self.last_coupon) if self.coupon_number >= 2 else 0
             tax = self.first_tax + self.middle_tax * (self.coupon_number - 2) + self.last_tax
+        return tax
+
+    def get_tax(self):
+        first_coupon_date = self.coupon_days[0]
+        first_period = first_coupon_date - self.previous_coupon_date
+        first_imposing_period = first_coupon_date - self.outset_date
+
+        tax = 0
+        if self.type == 'coupon':
+            coupon = (self.maturity_value / self.frequency) * (self.coupon_rate / 100)
+            first_tax_base = round(coupon * (first_imposing_period.days / first_period.days))
+            self.first_tax_base = first_tax_base
+            self.first_tax = self.calculate_tax(first_tax_base)
+            self.middle_tax_base = self.coupon
+            self.middle_tax = self.calculate_tax(coupon) if self.coupon_number >= 3 else 0
+            self.last_tax_base = self.last_coupon
+            self.last_tax = self.calculate_tax(self.last_coupon) if self.coupon_number >= 2 else 0
+            tax = self.first_tax + self.middle_tax * (self.coupon_number - 2) + self.last_tax
+        elif self.type == 'compound':
+            deduction_days = first_period.days - first_imposing_period.days
+            coupon_deduction_unit = self.get_fv_theoretical(10000, self.coupon_rate, deduction_days) - 10000
+            coupon_deduction = coupon_deduction_unit * self.amount
+            tax_base = int(self.coupon - coupon_deduction)
+            self.first_tax_base = tax_base
+            self.first_tax = self.calculate_tax(tax_base)
+            tax = self.first_tax
         return tax
 
     def calculate_tax(self, tax_base):
