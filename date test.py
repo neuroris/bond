@@ -29,7 +29,7 @@ def get_interest(start_date=None, end_date=None, interest_rate=None, payment_cyc
     return interest
 
 day1 = datetime.strptime('20220101', '%Y%m%d')
-day2 = datetime.strptime('20230202', '%Y%m%d')
+day2 = datetime.strptime('20230101', '%Y%m%d')
 day3 = datetime.strptime('20220907', '%Y%m%d')
 today = datetime.today().strftime('%Y%m%d')
 days = (day2 - day1).days

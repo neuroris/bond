@@ -1,10 +1,43 @@
 from datetime import datetime, timedelta, date, time
 from dateutil.relativedelta import relativedelta
+from items import *
 import math
 
+class BondItem():
+    def __init__(self):
+        self.name = ''
+        self.type = ''
+        self.given_price = 10000
+        self.given_discount_rate = 10.0
+        self.coupon_rate = 0.0
+        self.face_value = 10000
+        self.payment_cycle = 12
+        self.amount = 0
+        self.issue_date = ''
+        self.maturity_date = ''
+        self.outset_date = ''
+        self.compound_interest = False
+        self.compound_interest_number = 0
+        self.simple_interest_number = 0
+
+    def set(self, item):
+        self.name = item['name']
+        self.type = item['type']
+        self.given_price = item['price']
+        self.given_discount_rate = item['discount rate']
+        self.coupon_rate = item['coupon rate']
+        self.face_value = item['face value']
+        self.payment_cycle = item['payment cycle']
+        self.amount = item['amount']
+        self.issue_date = item['issue date']
+        self.maturity_date = item['maturity date']
+        self.outset_date = item['outset date']
+        self.compound_interest = item['compound interest']
+        self.compound_interest_number = item['compound interest number']
+        self.simple_interest_number = item['simple interest number']
+
 class Bond:
-    def __init__(self, coupon_rate, given_price, face_value, payment_cycle, amount, discount_rate,
-                 maturity_date, outset_date='', issue_date='', compound_interest=False):
+    def __init__(self, item):
         self.last_coupon = 0
         self.capital_income = 0
         self.total_income = 0
@@ -30,34 +63,34 @@ class Bond:
         self.discount_rate_wook = 0.0
         self.discount_rate_wook_tax = 0.0
 
-        self.payment_cycle = payment_cycle
-        self.frequency = int(12 / payment_cycle)
-        self.compound_interest = compound_interest
-        self.coupon_rate = coupon_rate
-        self.given_price = given_price
-        self.face_value = face_value
-        self.maturity_value = face_value * amount
-        self.purchase_value = given_price * amount
-        self.amount = amount
-        self.given_discount_rate = discount_rate
-        self.maturity_date = datetime.strptime(maturity_date, '%Y%m%d')
-        self.outset_date = datetime.strptime(outset_date, '%Y%m%d') if outset_date else datetime.combine(date.today(), time.min)
-        self.issue_date = datetime.strptime(issue_date, '%Y%m%d') if issue_date else None
-        self.authentic_maturity_date = self.maturity_date.replace(day=self.issue_date.day) if issue_date else self.maturity_date
+        self.name = item.name
+        self.type = item.type
+        self.payment_cycle = item.payment_cycle
+        self.frequency = int(12 / item.payment_cycle)
+        self.compound_interest = item.compound_interest
+        self.compound_interest_number = item.compound_interest_number
+        self.simple_interest_number = item.simple_interest_number
+        self.coupon_rate = item.coupon_rate
+        self.given_price = item.given_price
+        self.face_value = item.face_value
+        self.maturity_value = item.face_value * item.amount
+        self.purchase_value = item.given_price * item.amount
+        self.amount = item.amount
+        self.given_discount_rate = item.given_discount_rate
+        self.maturity_date = datetime.strptime(item.maturity_date, '%Y%m%d')
+        self.outset_date = datetime.strptime(item.outset_date, '%Y%m%d') if item.outset_date else datetime.combine(date.today(), time.min)
+        self.issue_date = datetime.strptime(item.issue_date, '%Y%m%d') if item.issue_date else None
+        self.authentic_maturity_date = self.maturity_date.replace(day=self.issue_date.day) if item.issue_date else self.maturity_date
         self.remaining_days = self.get_remaining_days()
         self.remaining_delta = relativedelta(self.maturity_date, self.outset_date)
         self.coupon_period = 365 / self.frequency
-        self.term = relativedelta(months=payment_cycle)
+        self.term = relativedelta(months=item.payment_cycle)
         self.authentic_delta = relativedelta(self.authentic_maturity_date, self.outset_date)
-        # remaining_months = self.authentic_delta.years * 12 + self.authentic_delta.months + self.authentic_delta.days / 31
-        # self.term_number = math.ceil(remaining_months / self.payment_cycle - 1)
         self.term_number = self.get_term_number()
         self.coupon_number = self.term_number + 1
-        # self.previous_coupon_date = self.authentic_maturity_date - self.coupon_number * self.term
         self.previous_coupon_date = self.get_previous_coupon_date()
         self.coupon_days = self.get_coupon_days()
         self.remainder_days = self.get_remainder_days()
-        # self.coupon = int(((face_value * (coupon_rate * 1000) * amount / self.frequency) / 100) / 1000)
         self.coupon = self.get_coupon()
         self.interest_income = self.get_interest_income()
         self.tax = self.get_tax()
@@ -97,9 +130,9 @@ class Bond:
     def get_coupon(self):
         if self.compound_interest:
             total_period = self.maturity_date - self.issue_date
-            total_remaining_days = total_period.days
-            future_value = self.get_fv_theoretical(10000, self.coupon_rate, total_remaining_days)
-            future_value = self.get_fv_conventional(10000, self.coupon_rate, total_remaining_days)
+            # total_remaining_days = total_period.days
+            # future_value = self.get_fv_theoretical(10000, self.coupon_rate, total_remaining_days)
+            future_value = self.get_interest(10000, self.issue_date, self.maturity_date, self.coupon_rate) + 10000
             coupon = int(future_value - 10000) * self.amount
         else:
             coupon = int(((self.face_value * (self.coupon_rate * 1000) * self.amount / self.frequency) / 100) / 1000)
@@ -126,19 +159,7 @@ class Bond:
 
         if self.compound_interest:
             deduction_days = first_period.days - first_imposing_period.days
-            r = self.coupon_rate / 100
-            coupon_deduction_unit = 10000 * ((1 + r) ** (deduction_days / 365)) - 10000
             coupon_deduction_unit = self.get_fv_theoretical(10000, self.coupon_rate, deduction_days) - 10000
-
-            # deduction_delta = relativedelta(self.outset_date, self.issue_date)
-            # deduction_months = deduction_delta.years * 12 + deduction_delta.months
-            # term_number = deduction_months // self.payment_cycle
-            # last_term_day = self.issue_date + relativedelta(months=self.payment_cycle) * term_number
-            # remainder_period = self.outset_date - last_term_day
-            # remainder_days = remainder_period.days
-            # coupon_deduction_unit = self.get_fv_conventional(10000, self.coupon_rate, term_number, remainder_days) - 10000
-
-
             coupon_deduction = coupon_deduction_unit * self.amount
             tax_base = int(self.coupon - coupon_deduction)
             self.first_tax_base = tax_base
@@ -180,15 +201,14 @@ class Bond:
 
         return fv
 
-    def get_interest(self, start_date=None, end_date=None, interest_rate=None, payment_cycle=None, frequency=None):
+    def get_interest(self, principal, start_date=None, end_date=None, interest_rate=None, payment_cycle=None, frequency=None):
         start_date = start_date if start_date else self.issue_date
         end_date = end_date if end_date else self.maturity_date
         interest_rate = interest_rate if interest_rate else self.coupon_rate
         payment_cycle = payment_cycle if payment_cycle else self.payment_cycle
         frequency = frequency if frequency else self.frequency
-        principal = 10000
 
-        delta = relativedelta(start_date, end_date)
+        delta = relativedelta(end_date, start_date)
         months = delta.years * 12 + delta.months
         term_number = months // payment_cycle
         last_term_day = start_date + relativedelta(months=payment_cycle) * term_number
@@ -464,6 +484,7 @@ class Bond:
         self.CAGR = self.get_CAGR(self.price * self.amount, self.price * self.amount + self.profit, self.remaining_days) * 100
         self.CAGR_bank = self.CAGR / 0.846
 
+        print('name:', self.name)
         print('issue date:', self.issue_date.strftime('%Y-%m-%d'))
         print('outset date:', self.outset_date.strftime('%Y-%m-%d'))
         print('maturity date:', self.maturity_date.strftime('%Y-%m-%d'))
@@ -497,27 +518,26 @@ class Bond:
 
 
 # Bond information
-given_price = 9511
-coupon_rate = 3.52
-face_value = 10000
-payment_cycle = 12
-amount = 100
-given_discount_rate = 10
-compound_interest = True
-issue_date = '20221130'
-outset_date = ''
-maturity_date = '20251130'
+quick_item = BondItem()
+quick_item.given_price = 8897
+quick_item.coupon_rate = 1
+quick_item.face_value = 10000
+quick_item.payment_cycle = 12
+quick_item.amount = 100
+quick_item.given_discount_rate = 10
+quick_item.compound_interest = True
+quick_item.issue_date = '20221031'
+quick_item.outset_date = ''
+quick_item.maturity_date = '20271031'
 
-# given_price = 8483
-# coupon_rate = 1.664
-# face_value = 10000
-# payment_cycle = 3
-# amount = 100
-# given_discount_rate = 10
-# compound_interest = False
-# issue_date = '20210907'
-# outset_date = ''
-# maturity_date = '20230907'
+item = BondItem()
+item.set(b001)
+
+# bond = Bond(quick_item)
+bond = Bond(item)
+
+# bond.analyze_price()
+bond.analyze_discount_rate()
 
 # Simple calculation
 coupon = 0
@@ -526,12 +546,6 @@ current_value = 10000
 discount_rate = 10
 remaining_days = 365 * 5
 frequency = 1
-
-bond = Bond(coupon_rate, given_price, face_value, payment_cycle, amount, given_discount_rate,
-            maturity_date, outset_date, issue_date, compound_interest)
-
-# bond.analyze_price()
-bond.analyze_discount_rate()
 
 # dcv = bond.get_dcv_theoretical(future_value, discount_rate, remaining_days, frequency)
 # dcv = bond.get_dcv_conventional(future_value, discount_rate, remaining_days, frequency)

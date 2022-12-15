@@ -1,0 +1,16 @@
+b001 = {
+    'name': '서울도시철도공채증권22-09',
+    'type': 'compound',
+    'price': 8100,
+    'coupon rate': 1,
+    'face value': 10000,
+    'payment cycle': 12,
+    'amount': 100,
+    'discount rate': 10,
+    'compound interest': True,
+    'compound interest number': 5,
+    'simple interest number': 2,
+    'issue date': '20220930',
+    'maturity date': '20290930',
+    'outset date': '',
+}
