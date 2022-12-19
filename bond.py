@@ -16,7 +16,6 @@ class BondItem():
         self.issue_date = ''
         self.maturity_date = ''
         self.outset_date = ''
-        self.compound_interest = False
         self.compound_interest_number = 0
         self.simple_interest_number = 0
 
@@ -32,7 +31,6 @@ class BondItem():
         self.issue_date = item['issue date']
         self.maturity_date = item['maturity date']
         self.outset_date = item['outset date']
-        self.compound_interest = item['compound interest']
         self.compound_interest_number = item['compound interest number']
         self.simple_interest_number = item['simple interest number']
 
@@ -67,7 +65,6 @@ class Bond:
         self.type = item.type
         self.payment_cycle = item.payment_cycle
         self.frequency = int(12 / item.payment_cycle)
-        self.compound_interest = item.compound_interest
         self.compound_interest_number = item.compound_interest_number
         self.simple_interest_number = item.simple_interest_number
         self.coupon_rate = item.coupon_rate
@@ -80,63 +77,72 @@ class Bond:
         self.maturity_date = datetime.strptime(item.maturity_date, '%Y%m%d')
         self.outset_date = datetime.strptime(item.outset_date, '%Y%m%d') if item.outset_date else datetime.combine(date.today(), time.min)
         self.issue_date = datetime.strptime(item.issue_date, '%Y%m%d') if item.issue_date else None
-        self.authentic_maturity_date = self.maturity_date.replace(day=self.issue_date.day) if item.issue_date else self.maturity_date
         self.remaining_days = self.get_remaining_days()
         self.remaining_delta = relativedelta(self.maturity_date, self.outset_date)
         self.coupon_period = 365 / self.frequency
         self.term = relativedelta(months=item.payment_cycle)
-        self.authentic_delta = relativedelta(self.authentic_maturity_date, self.outset_date)
         self.term_number = self.get_term_number()
         self.coupon_number = self.term_number + 1
         self.previous_coupon_date = self.get_previous_coupon_date()
         self.coupon_days = self.get_coupon_days()
+        self.virtual_term_number = self.get_virtual_term_number()
         self.remainder_days = self.get_remainder_days()
         self.coupon = self.get_coupon()
         self.interest_income = self.get_interest_income()
         self.tax = self.get_tax()
 
     def get_term_number(self):
-        remaining_months = self.authentic_delta.years * 12 + self.authentic_delta.months + self.authentic_delta.days / 31
-        term_number = math.ceil(remaining_months / self.payment_cycle - 1) if not self.compound_interest else 0
+        term_number = 0
+        if self.type == 'coupon':
+            remaining_months = self.remaining_delta.years * 12 + self.remaining_delta.months + self.remaining_delta.days / 31
+            term_number = math.ceil(remaining_months / self.payment_cycle - 1)
         return term_number
+
+    def get_virtual_term_number(self):
+        first_coupon_date = self.coupon_days[0]
+        delta = relativedelta(first_coupon_date, self.outset_date)
+        remaining_months = delta.years * 12 + delta.months
+        virtual_term_number = int(remaining_months / 12)
+        return virtual_term_number
 
     def get_remaining_days(self):
         day_span_date = self.maturity_date - self.outset_date
-        day_span = abs(day_span_date.days)
+        day_span = day_span_date.days
         return day_span
 
-    def get_remainder_days(self):
+    def get_remainder_days_deprecated(self):
         first_coupon_date = self.coupon_days[0]
         remainder_period = first_coupon_date - self.outset_date
         remainder_days = remainder_period.days
         return remainder_days
 
+    def get_remainder_days(self):
+        first_coupon_date = self.coupon_days[0]
+        if self.type == 'coupon':
+            remainder_period = first_coupon_date - self.outset_date
+        else:
+            virtual_coupon_date = first_coupon_date - self.virtual_term_number * relativedelta(months=self.payment_cycle)
+            remainder_period = virtual_coupon_date - self.outset_date
+        remainder_days = remainder_period.days
+        return remainder_days
+
     def get_previous_coupon_date(self):
-        outset_issue_delta = relativedelta(self.outset_date, self.issue_date)
-        outset_issue_months = outset_issue_delta.years * 12 + outset_issue_delta.months
-        prepaid_count = outset_issue_months // self.payment_cycle
-        previous_coupon_date = self.issue_date + self.term * prepaid_count if not self.compound_interest else self.issue_date
+        if self.type == 'coupon':
+            outset_issue_delta = relativedelta(self.outset_date, self.issue_date)
+            outset_issue_months = outset_issue_delta.years * 12 + outset_issue_delta.months
+            prepaid_count = outset_issue_months // self.payment_cycle
+            previous_coupon_date = self.issue_date + self.term * prepaid_count
+        else:
+            previous_coupon_date = self.issue_date
         return previous_coupon_date
 
     def get_coupon_days(self):
         coupon_days = list()
-        coupon_day = self.previous_coupon_date
         for coupon_index in range(self.term_number):
-            coupon_day += self.term
+            coupon_day = self.previous_coupon_date + self.term * (coupon_index + 1)
             coupon_days.append(coupon_day)
         coupon_days.append(self.maturity_date)
         return coupon_days
-
-    def get_coupon_deprecated(self):
-        if self.compound_interest:
-            total_period = self.maturity_date - self.issue_date
-            # total_remaining_days = total_period.days
-            # future_value = self.get_fv_theoretical(10000, self.coupon_rate, total_remaining_days)
-            future_value = self.get_interest(10000, self.issue_date, self.maturity_date, self.coupon_rate) + 10000
-            coupon = int(future_value - 10000) * self.amount
-        else:
-            coupon = int(((self.face_value * (self.coupon_rate * 1000) * self.amount / self.frequency) / 100) / 1000)
-        return coupon
 
     def get_coupon(self):
         coupon = 0
@@ -149,47 +155,28 @@ class Bond:
             future_value = self.get_interest(10000, self.issue_date, self.maturity_date, self.coupon_rate) + 10000
             coupon = int(future_value - 10000) * self.amount
         elif self.type == 'compound-simple':
-            coupon = int(((self.face_value * (self.coupon_rate * 1000) * self.amount / self.frequency) / 100) / 1000)
+            transition_date = self.issue_date + relativedelta(years=self.compound_interest_number)
+            compound_future_value = self.get_interest(10000, self.issue_date, transition_date, self.coupon_rate) + 10000
+            compound_interest = int((compound_future_value - 10000) * self.amount)
+            simple_interest = int(10000 * (self.coupon_rate / 100) * self.amount * self.simple_interest_number)
+            coupon = compound_interest + simple_interest
         return coupon
 
     def get_interest_income(self):
-        before_last_coupon_date = self.coupon_days[-2] if self.coupon_number >= 2 else self.previous_coupon_date
-        virtual_before_last_coupon_date = self.authentic_maturity_date - self.term
-        if (virtual_before_last_coupon_date == before_last_coupon_date) and (self.maturity_date == self.authentic_maturity_date)\
-                or self.compound_interest:
-            self.last_coupon = self.coupon
-            interest_income = self.coupon * self.coupon_number
-        else:
-            coupon = self.maturity_value * (self.coupon_rate / 100)
-            last_period = self.maturity_date - before_last_coupon_date
-            self.last_coupon = int(coupon * (last_period.days / 365))
+        if self.type == 'coupon':
+            before_last_coupon_date = self.coupon_days[-2] if self.coupon_number >= 2 else self.previous_coupon_date
+            last_coupon_period = relativedelta(self.maturity_date, before_last_coupon_date)
+            payment_cycle = relativedelta(months=self.payment_cycle)
+            if last_coupon_period == payment_cycle:
+                self.last_coupon = self.coupon
+            else:
+                coupon = self.maturity_value * (self.coupon_rate / 100)
+                last_period = self.maturity_date - before_last_coupon_date
+                self.last_coupon = int(coupon * (last_period.days / 365))
             interest_income = self.coupon * (self.coupon_number - 1) + self.last_coupon
-        return interest_income
-
-    def get_tax_deprecated(self):
-        first_coupon_date = self.coupon_days[0]
-        first_period = first_coupon_date - self.previous_coupon_date
-        first_imposing_period = first_coupon_date - self.outset_date
-
-        if self.compound_interest:
-            deduction_days = first_period.days - first_imposing_period.days
-            coupon_deduction_unit = self.get_fv_theoretical(10000, self.coupon_rate, deduction_days) - 10000
-            coupon_deduction = coupon_deduction_unit * self.amount
-            tax_base = int(self.coupon - coupon_deduction)
-            self.first_tax_base = tax_base
-            self.first_tax = self.calculate_tax(tax_base)
-            tax = self.first_tax
         else:
-            coupon = (self.maturity_value / self.frequency) * (self.coupon_rate / 100)
-            first_tax_base = round(coupon * (first_imposing_period.days / first_period.days))
-            self.first_tax_base = first_tax_base
-            self.first_tax = self.calculate_tax(first_tax_base)
-            self.middle_tax_base = self.coupon
-            self.middle_tax = self.calculate_tax(coupon) if self.coupon_number >= 3 else 0
-            self.last_tax_base = self.last_coupon
-            self.last_tax = self.calculate_tax(self.last_coupon) if self.coupon_number >= 2 else 0
-            tax = self.first_tax + self.middle_tax * (self.coupon_number - 2) + self.last_tax
-        return tax
+            interest_income = self.coupon
+        return interest_income
 
     def get_tax(self):
         first_coupon_date = self.coupon_days[0]
@@ -215,6 +202,23 @@ class Bond:
             self.first_tax_base = tax_base
             self.first_tax = self.calculate_tax(tax_base)
             tax = self.first_tax
+        elif self.type == 'compound-simple':
+            transition_date = self.issue_date + relativedelta(years=self.compound_interest_number)
+            if self.outset_date < transition_date:
+                deduction_days = first_period.days - first_imposing_period.days
+                coupon_deduction_unit = self.get_fv_theoretical(10000, self.coupon_rate, deduction_days) - 10000
+                coupon_deduction = int(coupon_deduction_unit * self.amount)
+            else:
+                compound_future_value = self.get_interest(10000, self.issue_date, transition_date, self.coupon_rate) + 10000
+                compound_deduction = int((compound_future_value - 10000) * self.amount)
+                simple_deduction_period = self.outset_date - transition_date
+                simple_deduction_days = simple_deduction_period.days
+                simple_deduction = int(10000 * (self.coupon_rate / 100) * self.amount * (simple_deduction_days / 365))
+                coupon_deduction = compound_deduction + simple_deduction
+            tax_base = self.coupon - coupon_deduction
+            self.first_tax_base = tax_base
+            self.first_tax = self.calculate_tax(tax_base)
+            tax = self.first_tax
         return tax
 
     def calculate_tax(self, tax_base):
@@ -229,7 +233,9 @@ class Bond:
 
     def get_fv_theoretical(self, principal, interest_rate, remaining_days):
         interest_rate /= 100
+
         fv = principal * ((1 + interest_rate) ** (remaining_days / 365))
+
         return fv
 
     def get_fv_conventional(self, principal, interest_rate, term_number, remainder_days=None, frequency=None):
@@ -289,8 +295,17 @@ class Bond:
         price += self.get_dcv_theoretical(self.maturity_value, discount_rate, self.remaining_days)
         return price
 
+    def get_price_conventional_deprecated(self, discount_rate=None):
+        discount_rate = discount_rate if discount_rate else self.given_discount_rate
+        price = 0
+        for coupon_index in range(self.coupon_number):
+            price += self.get_dcv_conventional(self.coupon, discount_rate, coupon_index)
+        price += self.get_dcv_conventional(self.maturity_value, discount_rate, self.term_number)
+        return price
+
     def get_price_conventional(self, discount_rate=None):
         discount_rate = discount_rate if discount_rate else self.given_discount_rate
+        # term_number = self.term_number if
         price = 0
         for coupon_index in range(self.coupon_number):
             price += self.get_dcv_conventional(self.coupon, discount_rate, coupon_index)
@@ -361,47 +376,6 @@ class Bond:
         price += self.get_dcv_theoretical(self.maturity_value, discount_rate, self.remaining_days, 1)
         return price
 
-    def calculate_theoretical_price(self, coupon, maturity_value, discount_rate, total_remaining_days, frequency):
-        coupon_period = 365 / frequency
-        coupon_number = math.ceil(total_remaining_days / coupon_period)
-        term_number = coupon_number - 1
-        remainder_days = total_remaining_days - coupon_period * term_number
-
-        price = 0
-        remaining_days = 0
-        for coupon_index in range(coupon_number):
-            remaining_days = remainder_days + coupon_period * coupon_index
-            price += self.get_dcv_theoretical(coupon, discount_rate, remaining_days, frequency)
-        price += self.get_dcv_theoretical(maturity_value, discount_rate, remaining_days, frequency)
-        return price
-
-    def calculate_conventional_price(self, coupon, maturity_value, discount_rate, total_remaining_days, frequency):
-        coupon_period = 365 / frequency
-        coupon_number = math.ceil(total_remaining_days / coupon_period)
-        term_number = coupon_number - 1
-        remainder_days = total_remaining_days - coupon_period * term_number
-
-        price = 0
-        for coupon_index in range(coupon_number):
-            price += self.get_dcv_conventional(coupon, discount_rate, coupon_index, remainder_days, frequency)
-        price += self.get_dcv_conventional(maturity_value, discount_rate, term_number, remainder_days, frequency)
-        return price
-
-    def calculate_wook_price(self, coupon, maturity_value, discount_rate, total_remaining_days, frequency):
-        coupon_period = 365 / frequency
-        coupon_number = math.ceil(total_remaining_days / coupon_period)
-        term_number = coupon_number - 1
-        remainder_days = total_remaining_days - coupon_period * term_number
-
-        price = 0
-        remaining_days = 0
-        for coupon_index in range(coupon_number):
-            remaining_days = remainder_days + coupon_period * coupon_index
-            # price += self.get_dcv_theoretical(coupon, discount_rate, remaining_days, frequency)
-            price += self.get_dcv_theoretical(coupon, discount_rate, remaining_days, 1)
-        # price += self.get_dcv_theoretical(maturity_value, discount_rate, remaining_days, frequency)
-        price += self.get_dcv_theoretical(maturity_value, discount_rate, remaining_days, 1)
-        return price
 
     def get_discount_rate_base(self, get_price_func, purchase_value=None):
         purchase_value = purchase_value if purchase_value else self.purchase_value
@@ -443,6 +417,48 @@ class Bond:
     def get_discount_rate_wook_tax(self, purchase_value=None):
         discount_rate = self.get_discount_rate_base(self.get_price_wook_tax, purchase_value)
         return discount_rate
+
+    def calculate_theoretical_price(self, coupon, maturity_value, discount_rate, total_remaining_days, frequency):
+        coupon_period = 365 / frequency
+        coupon_number = math.ceil(total_remaining_days / coupon_period)
+        term_number = coupon_number - 1
+        remainder_days = total_remaining_days - coupon_period * term_number
+
+        price = 0
+        remaining_days = 0
+        for coupon_index in range(coupon_number):
+            remaining_days = remainder_days + coupon_period * coupon_index
+            price += self.get_dcv_theoretical(coupon, discount_rate, remaining_days, frequency)
+        price += self.get_dcv_theoretical(maturity_value, discount_rate, remaining_days, frequency)
+        return price
+
+    def calculate_conventional_price(self, coupon, maturity_value, discount_rate, total_remaining_days, frequency):
+        coupon_period = 365 / frequency
+        coupon_number = math.ceil(total_remaining_days / coupon_period)
+        term_number = coupon_number - 1
+        remainder_days = total_remaining_days - coupon_period * term_number
+
+        price = 0
+        for coupon_index in range(coupon_number):
+            price += self.get_dcv_conventional(coupon, discount_rate, coupon_index, remainder_days, frequency)
+        price += self.get_dcv_conventional(maturity_value, discount_rate, term_number, remainder_days, frequency)
+        return price
+
+    def calculate_wook_price(self, coupon, maturity_value, discount_rate, total_remaining_days, frequency):
+        coupon_period = 365 / frequency
+        coupon_number = math.ceil(total_remaining_days / coupon_period)
+        term_number = coupon_number - 1
+        remainder_days = total_remaining_days - coupon_period * term_number
+
+        price = 0
+        remaining_days = 0
+        for coupon_index in range(coupon_number):
+            remaining_days = remainder_days + coupon_period * coupon_index
+            # price += self.get_dcv_theoretical(coupon, discount_rate, remaining_days, frequency)
+            price += self.get_dcv_theoretical(coupon, discount_rate, remaining_days, 1)
+        # price += self.get_dcv_theoretical(maturity_value, discount_rate, remaining_days, frequency)
+        price += self.get_dcv_theoretical(maturity_value, discount_rate, remaining_days, 1)
+        return price
 
     def calculate_discount_rate_engine(self, get_price_func, price, coupon, maturity_value, remaining_days, frequency):
         discount_rate_max = 100
@@ -525,6 +541,7 @@ class Bond:
         self.CAGR_bank = self.CAGR / 0.846
 
         print('name:', self.name)
+        print('type:', self.type)
         print('issue date:', self.issue_date.strftime('%Y-%m-%d'))
         print('outset date:', self.outset_date.strftime('%Y-%m-%d'))
         print('maturity date:', self.maturity_date.strftime('%Y-%m-%d'))
@@ -539,12 +556,12 @@ class Bond:
         # print('middle coupon: {:,} ({})'.format(self.coupon, self.middle_tax))
         # print('last coupon: {:,} ({})'.format(self.last_coupon, self.last_tax))
         if self.coupon_days[0]:
-            print('coupon {} ({:,}) - [{:,}] {:,}'.format(str(self.coupon_days[0])[:10], self.coupon, self.first_tax_base, self.first_tax))
+            print('\033[032mcoupon {} ({:,}) - [{:,}] {:,}\033[0m'.format(str(self.coupon_days[0])[:10], self.coupon, self.first_tax_base, self.first_tax))
         if len(self.coupon_days) >= 3:
             for coupon_date in self.coupon_days[1:-1]:
-                print('coupon {} ({:,}) - [{:,}] {:,}'.format(str(coupon_date)[:10], self.coupon, self.middle_tax_base, self.middle_tax))
+                print('\033[032mcoupon {} ({:,}) - [{:,}] {:,}\033[0m'.format(str(coupon_date)[:10], self.coupon, self.middle_tax_base, self.middle_tax))
         if len(self.coupon_days) >= 2:
-            print('coupon {} ({:,}) - [{:,}] {:,}'.format(str(self.coupon_days[-1])[:10], self.last_coupon, self.last_tax_base, self.last_tax))
+            print('\033[032mcoupon {} ({:,}) - [{:,}] {:,}\033[0m'.format(str(self.coupon_days[-1])[:10], self.last_coupon, self.last_tax_base, self.last_tax))
         print('interest income: {:,}'.format(self.interest_income))
         print('capital income: {:,}'.format(self.capital_income))
         print('total income: {:,}'.format(self.total_income))
@@ -559,20 +576,20 @@ class Bond:
 
 # Bond information
 quick_item = BondItem()
-quick_item.given_price = 8897
-quick_item.coupon_rate = 1
+quick_item.name = 'Quick analysis'
+quick_item.type = 'coupon'
+quick_item.given_price = 9801.1
+quick_item.coupon_rate = 4.4
 quick_item.face_value = 10000
-quick_item.payment_cycle = 12
+quick_item.payment_cycle = 3
 quick_item.amount = 100
 quick_item.given_discount_rate = 10
-quick_item.compound_interest = True
-quick_item.issue_date = '20221031'
+quick_item.issue_date = '20211008'
 quick_item.outset_date = ''
-quick_item.maturity_date = '20271031'
+quick_item.maturity_date = '20231006'
 
 item = BondItem()
-item.set(b001)
-
+item.set(b004)
 # bond = Bond(quick_item)
 bond = Bond(item)
 
