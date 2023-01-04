@@ -1,6 +1,8 @@
 from datetime import datetime, timedelta, date, time
 from dateutil.relativedelta import relativedelta
-from items import *
+from compound_simple_items import *
+from compound_items import *
+from coupon_items import *
 import math
 
 class BondItem():
@@ -37,6 +39,8 @@ class BondItem():
 class Bond:
     def __init__(self, item):
         self.last_coupon = 0
+        self.untreated_coupon = 0
+        self.treated_coupon = 0
         self.capital_income = 0
         self.total_income = 0
         self.profit = 0.0
@@ -51,6 +55,8 @@ class Bond:
         self.first_tax_base = 0
         self.middle_tax_base = 0
         self.last_tax_base = 0
+        self.discount_term_number = 0
+        self.discount_remainder_days = 0
 
         self.price = 0
         self.price_wook = 0
@@ -82,46 +88,46 @@ class Bond:
         self.coupon_period = 365 / self.frequency
         self.term = relativedelta(months=item.payment_cycle)
         self.term_number = self.get_term_number()
-        self.coupon_number = self.term_number + 1
+        self.coupon_number = self.get_coupon_number()
         self.previous_coupon_date = self.get_previous_coupon_date()
         self.coupon_days = self.get_coupon_days()
-        self.virtual_term_number = self.get_virtual_term_number()
         self.remainder_days = self.get_remainder_days()
         self.coupon = self.get_coupon()
         self.interest_income = self.get_interest_income()
         self.tax = self.get_tax()
 
     def get_term_number(self):
-        term_number = 0
         if self.type == 'coupon':
             remaining_months = self.remaining_delta.years * 12 + self.remaining_delta.months + self.remaining_delta.days / 31
             term_number = math.ceil(remaining_months / self.payment_cycle - 1)
+        else:
+            remaining_months = self.remaining_delta.years * 12 + self.remaining_delta.months
+            term_number = int(remaining_months / self.payment_cycle)
         return term_number
 
-    def get_virtual_term_number(self):
-        first_coupon_date = self.coupon_days[0]
-        delta = relativedelta(first_coupon_date, self.outset_date)
-        remaining_months = delta.years * 12 + delta.months
-        virtual_term_number = int(remaining_months / 12)
-        return virtual_term_number
+    def get_coupon_number(self):
+        coupon_number = 0
+        if self.type == 'coupon':
+            coupon_number = self.term_number + 1
+        elif self.type == 'compound':
+            coupon_number = 1
+        elif self.type == 'compound-simple':
+            coupon_number = 1
+        elif self.type == 'discount':
+            coupon_number = 0
+        return coupon_number
 
     def get_remaining_days(self):
         day_span_date = self.maturity_date - self.outset_date
         day_span = day_span_date.days
         return day_span
 
-    def get_remainder_days_deprecated(self):
-        first_coupon_date = self.coupon_days[0]
-        remainder_period = first_coupon_date - self.outset_date
-        remainder_days = remainder_period.days
-        return remainder_days
-
     def get_remainder_days(self):
         first_coupon_date = self.coupon_days[0]
         if self.type == 'coupon':
             remainder_period = first_coupon_date - self.outset_date
         else:
-            virtual_coupon_date = first_coupon_date - self.virtual_term_number * relativedelta(months=self.payment_cycle)
+            virtual_coupon_date = first_coupon_date - self.term_number * relativedelta(months=self.payment_cycle)
             remainder_period = virtual_coupon_date - self.outset_date
         remainder_days = remainder_period.days
         return remainder_days
@@ -138,7 +144,8 @@ class Bond:
 
     def get_coupon_days(self):
         coupon_days = list()
-        for coupon_index in range(self.term_number):
+        term_number = self.term_number if self.type == 'coupon' else 0
+        for coupon_index in range(term_number):
             coupon_day = self.previous_coupon_date + self.term * (coupon_index + 1)
             coupon_days.append(coupon_day)
         coupon_days.append(self.maturity_date)
@@ -147,19 +154,25 @@ class Bond:
     def get_coupon(self):
         coupon = 0
         if self.type == 'coupon':
-            coupon = int(((self.face_value * (self.coupon_rate * 1000) * self.amount / self.frequency) / 100) / 1000)
+            # coupon = int(((self.face_value * (self.coupon_rate * 1000) * self.amount / self.frequency) / 100) / 1000)
+            # self.untreated_coupon = self.face_value * (self.coupon_rate / 100) / self.frequency * self.amount
+            interest = self.face_value * (self.coupon_rate / 100) / self.frequency
+            self.untreated_coupon = int(interest * self.amount)
+            self.treated_coupon = int(interest) * self.amount
+            coupon = self.untreated_coupon
         elif self.type == 'compound':
-            # total_period = self.maturity_date - self.issue_date
-            # total_remaining_days = total_period.days
-            # future_value = self.get_fv_theoretical(10000, self.coupon_rate, total_remaining_days)
-            future_value = self.get_interest(10000, self.issue_date, self.maturity_date, self.coupon_rate) + 10000
-            coupon = int(future_value - 10000) * self.amount
+            interest = self.get_interest(10000, self.issue_date, self.maturity_date)
+            self.untreated_coupon = int(interest * self.amount)
+            self.treated_coupon = int(interest) * self.amount
+            # coupon = self.treated_coupon #국민주택22-10, 신한투자증권
+            coupon = self.untreated_coupon if self.frequency == 1 else self.treated_coupon
         elif self.type == 'compound-simple':
             transition_date = self.issue_date + relativedelta(years=self.compound_interest_number)
-            compound_future_value = self.get_interest(10000, self.issue_date, transition_date, self.coupon_rate) + 10000
-            compound_interest = int((compound_future_value - 10000) * self.amount)
-            simple_interest = int(10000 * (self.coupon_rate / 100) * self.amount * self.simple_interest_number)
-            coupon = compound_interest + simple_interest
+            compound_interest = self.get_interest(10000, self.issue_date, transition_date)
+            simple_interest = 10000 * (self.coupon_rate / 100) * self.simple_interest_number
+            self.untreated_coupon = int((compound_interest + simple_interest) * self.amount)
+            self.treated_coupon = (int(compound_interest) + int(simple_interest)) * self.amount
+            coupon = self.untreated_coupon
         return coupon
 
     def get_interest_income(self):
@@ -179,12 +192,11 @@ class Bond:
         return interest_income
 
     def get_tax(self):
-        first_coupon_date = self.coupon_days[0]
-        first_period = first_coupon_date - self.previous_coupon_date
-        first_imposing_period = first_coupon_date - self.outset_date
-
         tax = 0
         if self.type == 'coupon':
+            first_coupon_date = self.coupon_days[0]
+            first_period = first_coupon_date - self.previous_coupon_date
+            first_imposing_period = first_coupon_date - self.outset_date
             coupon = (self.maturity_value / self.frequency) * (self.coupon_rate / 100)
             first_tax_base = round(coupon * (first_imposing_period.days / first_period.days))
             self.first_tax_base = first_tax_base
@@ -195,27 +207,27 @@ class Bond:
             self.last_tax = self.calculate_tax(self.last_coupon) if self.coupon_number >= 2 else 0
             tax = self.first_tax + self.middle_tax * (self.coupon_number - 2) + self.last_tax
         elif self.type == 'compound':
-            deduction_days = first_period.days - first_imposing_period.days
-            coupon_deduction_unit = self.get_fv_theoretical(10000, self.coupon_rate, deduction_days) - 10000
-            coupon_deduction = coupon_deduction_unit * self.amount
-            tax_base = int(self.coupon - coupon_deduction)
+            deduction_unit = self.get_interest(10000, self.issue_date, self.outset_date)
+            deduction = int(deduction_unit * self.amount) #삼성증권, 키움증권
+            # deduction = deduction_unit * self.amount #신한투자증권
+            tax_base = int(self.coupon - deduction)
             self.first_tax_base = tax_base
             self.first_tax = self.calculate_tax(tax_base)
             tax = self.first_tax
         elif self.type == 'compound-simple':
             transition_date = self.issue_date + relativedelta(years=self.compound_interest_number)
             if self.outset_date < transition_date:
-                deduction_days = first_period.days - first_imposing_period.days
-                coupon_deduction_unit = self.get_fv_theoretical(10000, self.coupon_rate, deduction_days) - 10000
-                coupon_deduction = int(coupon_deduction_unit * self.amount)
+                deduction_unit = self.get_interest(10000, self.issue_date, self.outset_date)
+                deduction = int(deduction_unit * self.amount)
             else:
-                compound_future_value = self.get_interest(10000, self.issue_date, transition_date, self.coupon_rate) + 10000
-                compound_deduction = int((compound_future_value - 10000) * self.amount)
+                compound_deduction_unit = self.get_interest(10000, self.issue_date, transition_date)
+                # compound_deduction = int(compound_deduction_unit * self.amount)
+                compound_deduction = compound_deduction_unit * self.amount #키움증권, 삼성증권
                 simple_deduction_period = self.outset_date - transition_date
                 simple_deduction_days = simple_deduction_period.days
                 simple_deduction = int(10000 * (self.coupon_rate / 100) * self.amount * (simple_deduction_days / 365))
-                coupon_deduction = compound_deduction + simple_deduction
-            tax_base = self.coupon - coupon_deduction
+                deduction = compound_deduction + simple_deduction
+            tax_base = int(self.coupon - deduction)
             self.first_tax_base = tax_base
             self.first_tax = self.calculate_tax(tax_base)
             tax = self.first_tax
@@ -231,10 +243,12 @@ class Bond:
         CAGR = ((future_value / current_value) ** (1 / (elapsed_days / 365))) - 1
         return CAGR
 
-    def get_fv_theoretical(self, principal, interest_rate, remaining_days):
+    def get_fv_theoretical(self, principal, interest_rate, remaining_days, frequency=None, term=None):
+        frequency = frequency if frequency else self.frequency
         interest_rate /= 100
+        term = 365 / frequency if not term else term
 
-        fv = principal * ((1 + interest_rate) ** (remaining_days / 365))
+        fv = principal * ((1 + (interest_rate / frequency)) ** (remaining_days / term))
 
         return fv
 
@@ -247,38 +261,86 @@ class Bond:
 
         return fv
 
-    def get_interest(self, principal, start_date=None, end_date=None, interest_rate=None, payment_cycle=None, frequency=None):
+    def get_term_days(self, start_date, end_date, payment_cycle):
+        delta = relativedelta(end_date, start_date)
+        months = delta.years * 12 + delta.months
+        term_number = months // payment_cycle
+        term_end_date = start_date + term_number * relativedelta(months=payment_cycle)
+        remainder_days = (end_date - term_end_date).days
+        return term_number, remainder_days
+
+    def get_discount_term_days(self, start_date, end_date, payment_cycle):
+        delta = relativedelta(end_date, start_date)
+        months = delta.years * 12 + delta.months
+        term_number = months // payment_cycle
+        term_start_date = end_date - term_number * relativedelta(months=payment_cycle)
+        remainder_days = (term_start_date - start_date).days
+        return term_number, remainder_days
+
+    def get_term(self, start_date, term_number):
+        payment_delta = relativedelta(months=self.payment_cycle)
+        previous_term_date = start_date + term_number * payment_delta
+        next_term_date = previous_term_date + payment_delta
+        term = (next_term_date - previous_term_date).days
+        return term
+
+    def get_interest(self, principal, start_date=None, end_date=None, interest_rate=None, payment_cycle=None):
         start_date = start_date if start_date else self.issue_date
         end_date = end_date if end_date else self.maturity_date
         interest_rate = interest_rate if interest_rate else self.coupon_rate
         payment_cycle = payment_cycle if payment_cycle else self.payment_cycle
-        frequency = frequency if frequency else self.frequency
+        frequency = 12 / payment_cycle
 
-        delta = relativedelta(end_date, start_date)
-        months = delta.years * 12 + delta.months
-        term_number = months // payment_cycle
-        last_term_day = start_date + relativedelta(months=payment_cycle) * term_number
-        remainder_period = end_date - last_term_day
-        remainder_days = remainder_period.days
+        term_number, remainder_days = self.get_term_days(start_date, end_date, payment_cycle)
+        term = self.get_term(start_date, term_number)
+        term_days = term * term_number
+        remaining_days = term_days + remainder_days
+        principal_interest = self.get_fv_theoretical(principal, interest_rate, remaining_days, frequency, term)
+        interest = principal_interest - principal
+        return interest
+
+    def get_interest_conventional(self, principal, start_date=None, end_date=None, interest_rate=None, payment_cycle=None):
+        start_date = start_date if start_date else self.issue_date
+        end_date = end_date if end_date else self.maturity_date
+        interest_rate = interest_rate if interest_rate else self.coupon_rate
+        payment_cycle = payment_cycle if payment_cycle else self.payment_cycle
+        frequency = 12 / payment_cycle
+
+        term_number, remainder_days = self.get_term_days(start_date, end_date, payment_cycle)
         principal_interest = self.get_fv_conventional(principal, interest_rate, term_number, remainder_days, frequency)
         interest = principal_interest - principal
         return interest
 
-    def get_dcv_theoretical(self, future_value, discount_rate=None, remaining_days=None, frequency=None):
+    def get_dcv(self, future_value, start_date, end_date=None, discount_rate=None, payment_cycle=None):
+        start_date = start_date if start_date else self.issue_date
+        end_date = end_date if end_date else self.maturity_date
+        discount_rate = discount_rate if discount_rate else self.given_discount_rate
+        payment_cycle = payment_cycle if payment_cycle else self.payment_cycle
+        frequency = 12 / payment_cycle
+
+        term_number, remainder_days = self.get_term_days(start_date, end_date, payment_cycle)
+        term = self.get_term(start_date, term_number)
+        term_days = term * term_number
+        remaining_days = term_days + remainder_days
+        dcv = self.get_dcv_theoretical(future_value, discount_rate, remaining_days, frequency, term)
+        return dcv
+
+    def get_dcv_theoretical(self, future_value, discount_rate=None, remaining_days=None, frequency=None, term=None):
         remaining_days = remaining_days if remaining_days is not None else self.remaining_days
-        discount_rate = discount_rate if discount_rate is not None else self.given_discount_rate
-        frequency = frequency if frequency else self.frequency
-        discount_rate /= 100
+        r = discount_rate if discount_rate is not None else self.given_discount_rate
+        f = frequency if frequency else self.frequency
+        term = 365 / f if not term else term
+        r /= 100
 
         dcv = future_value / \
-              ((1 + (discount_rate / frequency)) ** (remaining_days / 365 * frequency))
+              ((1 + (r / f)) ** (remaining_days / term))
 
         return dcv
 
     def get_dcv_conventional(self, future_value, discount_rate, term_number, remainder_days=None, frequency=None):
         f = frequency if frequency else self.frequency
         r = discount_rate / 100
-        d = remainder_days if remainder_days else self.remainder_days
+        d = remainder_days if remainder_days is not None else self.remainder_days
 
         dcv = future_value / \
               (((1 + r / f) ** term_number) * (1 + r * (d / 365)))
@@ -298,18 +360,35 @@ class Bond:
     def get_price_conventional_deprecated(self, discount_rate=None):
         discount_rate = discount_rate if discount_rate else self.given_discount_rate
         price = 0
-        for coupon_index in range(self.coupon_number):
-            price += self.get_dcv_conventional(self.coupon, discount_rate, coupon_index)
+        if self.type == 'coupon':
+            for coupon_index in range(self.coupon_number):
+                price += self.get_dcv_conventional(self.coupon, discount_rate, coupon_index)
+        elif self.type == 'compound':
+            price = self.get_dcv_conventional(self.coupon, discount_rate, self.term_number)
+        elif self.type == 'compound-simple':
+            price = self.get_dcv_conventional(self.untreated_coupon, discount_rate, self.term_number) # 삼성증권
+            # price = self.get_dcv_conventional(self.coupon, discount_rate, self.term_number)
         price += self.get_dcv_conventional(self.maturity_value, discount_rate, self.term_number)
         return price
 
     def get_price_conventional(self, discount_rate=None):
         discount_rate = discount_rate if discount_rate else self.given_discount_rate
-        # term_number = self.term_number if
+        term_number, remainder_days = self.get_discount_term_days(self.outset_date, self.maturity_date, 12)
         price = 0
-        for coupon_index in range(self.coupon_number):
-            price += self.get_dcv_conventional(self.coupon, discount_rate, coupon_index)
-        price += self.get_dcv_conventional(self.maturity_value, discount_rate, self.term_number)
+        if self.type == 'coupon':
+            price += self.get_dcv_conventional(self.coupon, discount_rate, 0, 12)
+            price += self.get_dcv_conventional(self.coupon, discount_rate, 1, 12)
+            price += self.get_dcv_conventional(self.coupon, discount_rate, 2, 12)
+            # for coupon_index in range(1, self.coupon_number):
+            #     price += self.get_dcv_conventional(self.coupon, discount_rate, coupon_index)
+        elif self.type == 'compound':
+            # price += self.get_dcv_conventional(self.coupon, discount_rate, term_number, remainder_days, 1)
+            price += self.get_dcv_conventional(self.treated_coupon, discount_rate, term_number, remainder_days, 1)
+        elif self.type == 'compound-simple':
+            price = self.get_dcv_conventional(self.treated_coupon, discount_rate, term_number, remainder_days, 1) # 삼성증권
+            # price = self.get_dcv_conventional(self.untreated_coupon, discount_rate, self.term_number) # 삼성증권
+            # price = self.get_dcv_conventional(self.coupon, discount_rate, self.term_number)
+        price += self.get_dcv_conventional(self.maturity_value, discount_rate, term_number, remainder_days, 1)
         return price
 
     def get_price_conventional_tax(self, discount_rate=None):
@@ -318,7 +397,7 @@ class Bond:
 
         # First term
         first_income = self.coupon - self.first_tax
-        price += self.get_dcv_conventional(first_income, discount_rate, 0)
+        price += self.get_dcv_conventional(first_income, discount_rate, self.term_number)
 
         # Mid term
         if self.coupon_number >= 3:
@@ -376,7 +455,6 @@ class Bond:
         price += self.get_dcv_theoretical(self.maturity_value, discount_rate, self.remaining_days, 1)
         return price
 
-
     def get_discount_rate_base(self, get_price_func, purchase_value=None):
         purchase_value = purchase_value if purchase_value else self.purchase_value
         discount_rate_max = 100
@@ -394,7 +472,7 @@ class Bond:
                 discount_rate -= searching_gap
             else:
                 break
-        rounded_discount_rate = round(discount_rate , 3)
+        rounded_discount_rate = int(discount_rate * 1000) / 1000
         return rounded_discount_rate
 
     def get_discount_rate(self, purchase_value=None):
@@ -589,7 +667,7 @@ quick_item.outset_date = ''
 quick_item.maturity_date = '20231006'
 
 item = BondItem()
-item.set(b004)
+item.set(cs008)
 # bond = Bond(quick_item)
 bond = Bond(item)
 
@@ -620,3 +698,16 @@ frequency = 1
 # print('Discount rate(T)', discount_rate_T)
 # print('Discount rate(C)', discount_rate_C)
 # print('Discount rate(W)', discount_rate_W)
+
+# d = bond.outset_date
+# print(d)
+#
+# day1 = datetime.strptime('20221013', '%Y%m%d')
+# day2 = datetime.strptime('20230112', '%Y%m%d')
+# day2 = bond.outset_date
+# days = (day2 - day1).days
+# delta = relativedelta(day2, day1)
+# print(days)
+# print(delta)
+
+print(bond.untreated_coupon)
