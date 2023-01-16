@@ -1,14 +1,16 @@
 import math
 
-discount_rate = 5.481
-t = 4
-d = 302
+r = 0.05698
+m = 1000000
+c = 8000
+d = 32
+t = 92
 f = 4
-future_value = 1051000
-r = discount_rate / 100
 
-dcv1 = future_value / ((1 + r) ** (d / 365))
-dcv2 = future_value / ((1 + r / f) ** (d / 365 * f))
+price1 = c / (1 + (r / f) * (d / 92))
+price2 = m / (1 + (r / f) * (d / 92))
+price = price1 + price2
 
-print(dcv1)
-print(dcv2)
+print(price1)
+print(price2)
+print(price)

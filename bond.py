@@ -182,6 +182,8 @@ class Bond:
             payment_cycle = relativedelta(months=self.payment_cycle)
             if last_coupon_period == payment_cycle:
                 self.last_coupon = self.coupon
+            elif before_last_coupon_date.day == 28 and self.maturity_date.day == 29:
+                self.last_coupon = self.coupon
             else:
                 coupon = self.maturity_value * (self.coupon_rate / 100)
                 last_period = self.maturity_date - before_last_coupon_date
@@ -196,9 +198,10 @@ class Bond:
         if self.type == 'coupon':
             first_coupon_date = self.coupon_days[0]
             first_period = first_coupon_date - self.previous_coupon_date
-            first_imposing_period = first_coupon_date - self.outset_date
+            first_imposing_days = (first_coupon_date - self.outset_date).days
             coupon = (self.maturity_value / self.frequency) * (self.coupon_rate / 100)
-            first_tax_base = round(coupon * (first_imposing_period.days / first_period.days))
+            first_tax_base = round(coupon * (first_imposing_days / first_period.days)) #삼성증권, 한국투자증권
+            # first_tax_base = int(self.coupon * (first_imposing_days / first_period.days)) #키움증권
             self.first_tax_base = first_tax_base
             self.first_tax = self.calculate_tax(first_tax_base)
             self.middle_tax_base = self.coupon
@@ -337,7 +340,18 @@ class Bond:
 
         return dcv
 
-    def get_dcv_conventional(self, future_value, discount_rate, term_number, remainder_days=None, frequency=None):
+    def get_dcv_conventional(self, future_value, discount_rate, term_number, remainder_days=None, frequency=None, term=None):
+        f = frequency if frequency else self.frequency
+        r = discount_rate / 100
+        d = remainder_days if remainder_days is not None else self.remainder_days
+        term = term if term else 365
+
+        dcv = future_value / \
+              (((1 + r / f) ** term_number) * (1 + (r / f) * (d / term)))
+
+        return dcv
+
+    def get_dcv_conventional_deprecated(self, future_value, discount_rate, term_number, remainder_days=None, frequency=None):
         f = frequency if frequency else self.frequency
         r = discount_rate / 100
         d = remainder_days if remainder_days is not None else self.remainder_days
@@ -357,38 +371,25 @@ class Bond:
         price += self.get_dcv_theoretical(self.maturity_value, discount_rate, self.remaining_days)
         return price
 
-    def get_price_conventional_deprecated(self, discount_rate=None):
-        discount_rate = discount_rate if discount_rate else self.given_discount_rate
-        price = 0
-        if self.type == 'coupon':
-            for coupon_index in range(self.coupon_number):
-                price += self.get_dcv_conventional(self.coupon, discount_rate, coupon_index)
-        elif self.type == 'compound':
-            price = self.get_dcv_conventional(self.coupon, discount_rate, self.term_number)
-        elif self.type == 'compound-simple':
-            price = self.get_dcv_conventional(self.untreated_coupon, discount_rate, self.term_number) # 삼성증권
-            # price = self.get_dcv_conventional(self.coupon, discount_rate, self.term_number)
-        price += self.get_dcv_conventional(self.maturity_value, discount_rate, self.term_number)
-        return price
-
     def get_price_conventional(self, discount_rate=None):
         discount_rate = discount_rate if discount_rate else self.given_discount_rate
-        term_number, remainder_days = self.get_discount_term_days(self.outset_date, self.maturity_date, 12)
+        term_number, remainder_days = self.get_discount_term_days(self.outset_date, self.maturity_date, self.payment_cycle)
         price = 0
         if self.type == 'coupon':
-            price += self.get_dcv_conventional(self.coupon, discount_rate, 0, 12)
-            price += self.get_dcv_conventional(self.coupon, discount_rate, 1, 12)
-            price += self.get_dcv_conventional(self.coupon, discount_rate, 2, 12)
-            # for coupon_index in range(1, self.coupon_number):
-            #     price += self.get_dcv_conventional(self.coupon, discount_rate, coupon_index)
+            first_coupon_date = self.coupon_days[0]
+            previous_coupon_date = first_coupon_date - self.term
+            term = (first_coupon_date - previous_coupon_date).days
+            for coupon_date in self.coupon_days:
+                coupon_term, coupon_remainder = self.get_discount_term_days(self.outset_date, coupon_date, self.payment_cycle)
+                price += self.get_dcv_conventional(self.treated_coupon, discount_rate, coupon_term, coupon_remainder, self.frequency, term) #효성첨단소재262-2
+                # price += self.get_dcv_conventional(self.untreated_coupon, discount_rate, coupon_term, coupon_remainder, self.frequency, term)
+            price += self.get_dcv_conventional(self.maturity_value, discount_rate, term_number, remainder_days, self.frequency, term)
         elif self.type == 'compound':
-            # price += self.get_dcv_conventional(self.coupon, discount_rate, term_number, remainder_days, 1)
             price += self.get_dcv_conventional(self.treated_coupon, discount_rate, term_number, remainder_days, 1)
+            price += self.get_dcv_conventional(self.maturity_value, discount_rate, term_number, remainder_days, 1)
         elif self.type == 'compound-simple':
-            price = self.get_dcv_conventional(self.treated_coupon, discount_rate, term_number, remainder_days, 1) # 삼성증권
-            # price = self.get_dcv_conventional(self.untreated_coupon, discount_rate, self.term_number) # 삼성증권
-            # price = self.get_dcv_conventional(self.coupon, discount_rate, self.term_number)
-        price += self.get_dcv_conventional(self.maturity_value, discount_rate, term_number, remainder_days, 1)
+            price += self.get_dcv_conventional(self.treated_coupon, discount_rate, term_number, remainder_days, 1)
+            price += self.get_dcv_conventional(self.maturity_value, discount_rate, term_number, remainder_days, 1)
         return price
 
     def get_price_conventional_tax(self, discount_rate=None):
@@ -614,6 +615,7 @@ class Bond:
         self.profit = self.total_income - self.tax
         self.profit_rate = self.profit / (self.price * self.amount) * 100
         self.profit_rate_annual = self.profit_rate / (self.remaining_days / 365)
+        # self.profit_rate_bank = round(self.profit_rate_annual / 0.846 * 1000) / 1000
         self.profit_rate_bank = int(self.profit_rate_annual / 0.846 * 1000) / 1000
         self.CAGR = self.get_CAGR(self.price * self.amount, self.price * self.amount + self.profit, self.remaining_days) * 100
         self.CAGR_bank = self.CAGR / 0.846
@@ -667,7 +669,7 @@ quick_item.outset_date = ''
 quick_item.maturity_date = '20231006'
 
 item = BondItem()
-item.set(cs008)
+item.set(c024)
 # bond = Bond(quick_item)
 bond = Bond(item)
 
@@ -711,3 +713,4 @@ frequency = 1
 # print(delta)
 
 print(bond.untreated_coupon)
+print(bond.treated_coupon)
