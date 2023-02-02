@@ -12,6 +12,7 @@ cp001 = {
     'issue date': '20220930',
     'maturity date': '20270930',
     'outset date': '',
+    'sale date': ''
 }
 
 cp002 = {
@@ -28,6 +29,7 @@ cp002 = {
     'issue date': '20221031',
     'maturity date': '20271031',
     'outset date': '',
+    'sale date': ''
 }
 
 cp003 = {
@@ -44,6 +46,7 @@ cp003 = {
     'issue date': '20201231',
     'maturity date': '20251231',
     'outset date': '',
+    'sale date': ''
 }
 
 cp004 = {
@@ -60,6 +63,7 @@ cp004 = {
     'issue date': '20210430',
     'maturity date': '20260430',
     'outset date': '',
+    'sale date': ''
 }
 
 cp005 = {
@@ -76,6 +80,7 @@ cp005 = {
     'issue date': '20221215',
     'maturity date': '20251215',
     'outset date': '',
+    'sale date': ''
 }
 
 cp006 = {
@@ -92,6 +97,7 @@ cp006 = {
     'issue date': '20221013',
     'maturity date': '20251013',
     'outset date': '',
+    'sale date': ''
 }
 
 cp007 = {
@@ -108,6 +114,7 @@ cp007 = {
     'issue date': '20180430',
     'maturity date': '20230430',
     'outset date': '',
+    'sale date': ''
 }
 
 cp008 = {
@@ -124,6 +131,7 @@ cp008 = {
     'issue date': '20190731',
     'maturity date': '20240731',
     'outset date': '',
+    'sale date': ''
 }
 
 cp009 = {
@@ -140,6 +148,7 @@ cp009 = {
     'issue date': '20211231',
     'maturity date': '20261231',
     'outset date': '',
+    'sale date': ''
 }
 
 cp010 = {
@@ -156,6 +165,7 @@ cp010 = {
     'issue date': '20211130',
     'maturity date': '20261130',
     'outset date': '',
+    'sale date': ''
 }
 
 cp011 = {
@@ -172,6 +182,7 @@ cp011 = {
     'issue date': '20180630',
     'maturity date': '20230630',
     'outset date': '',
+    'sale date': ''
 }
 
 cp012 = {
@@ -188,6 +199,7 @@ cp012 = {
     'issue date': '20200331',
     'maturity date': '20250331',
     'outset date': '',
+    'sale date': ''
 }
 
 cp013 = {
@@ -204,6 +216,7 @@ cp013 = {
     'issue date': '20190831',
     'maturity date': '20240831',
     'outset date': '',
+    'sale date': ''
 }
 
 cp014 = {
@@ -220,6 +233,7 @@ cp014 = {
     'issue date': '20190930',
     'maturity date': '20240930',
     'outset date': '',
+    'sale date': ''
 }
 
 cp015 = {
@@ -236,6 +250,7 @@ cp015 = {
     'issue date': '20191231',
     'maturity date': '20241231',
     'outset date': '',
+    'sale date': ''
 }
 
 cp016 = {
@@ -252,6 +267,7 @@ cp016 = {
     'issue date': '20200131',
     'maturity date': '20250131',
     'outset date': '',
+    'sale date': ''
 }
 
 cp017 = {
@@ -268,6 +284,7 @@ cp017 = {
     'issue date': '20200229',
     'maturity date': '20250228',
     'outset date': '',
+    'sale date': ''
 }
 
 cp018 = {
@@ -284,6 +301,7 @@ cp018 = {
     'issue date': '20200131',
     'maturity date': '20250131',
     'outset date': '',
+    'sale date': ''
 }
 
 cp019 = {
@@ -300,6 +318,7 @@ cp019 = {
     'issue date': '20200229',
     'maturity date': '20250228',
     'outset date': '',
+    'sale date': ''
 }
 
 cp020 = {
@@ -316,6 +335,7 @@ cp020 = {
     'issue date': '20220928',
     'maturity date': '20270928',
     'outset date': '',
+    'sale date': ''
 }
 
 cp021 = {
@@ -332,6 +352,7 @@ cp021 = {
     'issue date': '20160725',
     'maturity date': '20260725',
     'outset date': '',
+    'sale date': ''
 }
 
 cp022 = {
@@ -348,6 +369,7 @@ cp022 = {
     'issue date': '20180131',
     'maturity date': '20230131',
     'outset date': '',
+    'sale date': ''
 }
 
 cp023 = {
@@ -364,6 +386,7 @@ cp023 = {
     'issue date': '20200331',
     'maturity date': '20250331',
     'outset date': '',
+    'sale date': ''
 }
 
 cp024 = {
@@ -380,6 +403,7 @@ cp024 = {
     'issue date': '20220930',
     'maturity date': '20270930',
     'outset date': '',
+    'sale date': ''
 }
 
 cp025 = {
@@ -396,6 +420,7 @@ cp025 = {
     'issue date': '20200331',
     'maturity date': '20250331',
     'outset date': '',
+    'sale date': ''
 }
 
 cp026 = {
@@ -412,6 +437,7 @@ cp026 = {
     'issue date': '20220531',
     'maturity date': '20250531',
     'outset date': '',
+    'sale date': ''
 }
 
 cp027 = {
@@ -428,6 +454,7 @@ cp027 = {
     'issue date': '20221231',
     'maturity date': '20271231',
     'outset date': '',
+    'sale date': ''
 }
 
 cp028 = {
@@ -444,6 +471,7 @@ cp028 = {
     'issue date': '20210430',
     'maturity date': '20260430',
     'outset date': '',
+    'sale date': ''
 }
 
 cp029 = {
@@ -460,4 +488,5 @@ cp029 = {
     'issue date': '20201231',
     'maturity date': '20251231',
     'outset date': '',
+    'sale date': ''
 }

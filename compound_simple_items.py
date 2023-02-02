@@ -12,6 +12,7 @@ cs001 = {
     'issue date': '20220930',
     'maturity date': '20290930',
     'outset date': '20221213',
+    'sale date': ''
 }
 
 cs002 = {
@@ -28,6 +29,7 @@ cs002 = {
     'issue date': '20221031',
     'maturity date': '20291031',
     'outset date': '20221213',
+    'sale date': ''
 }
 
 cs003 = {
@@ -44,6 +46,7 @@ cs003 = {
     'issue date': '20160930',
     'maturity date': '20230930',
     'outset date': '',
+    'sale date': ''
 }
 
 cs004 = {
@@ -60,6 +63,7 @@ cs004 = {
     'issue date': '20171231',
     'maturity date': '20241231',
     'outset date': '',
+    'sale date': ''
 }
 
 cs005 = {
@@ -76,6 +80,7 @@ cs005 = {
     'issue date': '20180131',
     'maturity date': '20250131',
     'outset date': '',
+    'sale date': ''
 }
 
 cs006 = {
@@ -92,6 +97,7 @@ cs006 = {
     'issue date': '20160131',
     'maturity date': '20230131',
     'outset date': '',
+    'sale date': ''
 }
 
 cs007 = {
@@ -108,6 +114,7 @@ cs007 = {
     'issue date': '20180331',
     'maturity date': '20250331',
     'outset date': '',
+    'sale date': ''
 }
 
 cs008 = {
@@ -124,4 +131,5 @@ cs008 = {
     'issue date': '20180831',
     'maturity date': '20250831',
     'outset date': '',
+    'sale date': ''
 }

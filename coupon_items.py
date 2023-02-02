@@ -12,6 +12,7 @@ c001 = {
     'issue date': '20200710',
     'maturity date': '20231010',
     'outset date': '',
+    'sale date': ''
 }
 
 c002 = {
@@ -28,6 +29,7 @@ c002 = {
     'issue date': '20220525',
     'maturity date': '20240524',
     'outset date': '',
+    'sale date': ''
 }
 
 c003 = {
@@ -44,6 +46,7 @@ c003 = {
     'issue date': '20180528',
     'maturity date': '20280528',
     'outset date': '',
+    'sale date': ''
 }
 
 c004 = {
@@ -60,6 +63,7 @@ c004 = {
     'issue date': '20220928',
     'maturity date': '20250928',
     'outset date': '',
+    'sale date': ''
 }
 
 c005 = {
@@ -76,6 +80,7 @@ c005 = {
     'issue date': '20220715',
     'maturity date': '20230715',
     'outset date': '',
+    'sale date': ''
 }
 
 c006 = {
@@ -92,6 +97,7 @@ c006 = {
     'issue date': '20221210',
     'maturity date': '20231210',
     'outset date': '',
+    'sale date': ''
 }
 
 c007 = {
@@ -108,6 +114,7 @@ c007 = {
     'issue date': '20130904',
     'maturity date': '20230904',
     'outset date': '',
+    'sale date': ''
 }
 
 c008 = {
@@ -124,6 +131,7 @@ c008 = {
     'issue date': '20190226',
     'maturity date': '20240226',
     'outset date': '',
+    'sale date': ''
 }
 
 c009 = {
@@ -140,6 +148,7 @@ c009 = {
     'issue date': '20220907',
     'maturity date': '20240906',
     'outset date': '',
+    'sale date': ''
 }
 
 c010 = {
@@ -156,6 +165,7 @@ c010 = {
     'issue date': '20220610',
     'maturity date': '20250610',
     'outset date': '',
+    'sale date': ''
 }
 
 c011 = {
@@ -172,6 +182,7 @@ c011 = {
     'issue date': '20130310',
     'maturity date': '20230310',
     'outset date': '',
+    'sale date': ''
 }
 
 c012 = {
@@ -188,6 +199,7 @@ c012 = {
     'issue date': '20201210',
     'maturity date': '20231210',
     'outset date': '',
+    'sale date': ''
 }
 
 c013 = {
@@ -204,6 +216,7 @@ c013 = {
     'issue date': '20180316',
     'maturity date': '20230316',
     'outset date': '',
+    'sale date': ''
 }
 
 c014 = {
@@ -220,6 +233,7 @@ c014 = {
     'issue date': '20211207',
     'maturity date': '20230307',
     'outset date': '',
+    'sale date': ''
 }
 
 c015 = {
@@ -236,6 +250,7 @@ c015 = {
     'issue date': '20280227',
     'maturity date': '20230227',
     'outset date': '',
+    'sale date': ''
 }
 
 c016 = {
@@ -252,6 +267,7 @@ c016 = {
     'issue date': '20211216',
     'maturity date': '20230316',
     'outset date': '',
+    'sale date': ''
 }
 
 c017 = {
@@ -268,6 +284,7 @@ c017 = {
     'issue date': '20130313',
     'maturity date': '20230313',
     'outset date': '',
+    'sale date': ''
 }
 
 c018 = {
@@ -284,6 +301,7 @@ c018 = {
     'issue date': '20210203',
     'maturity date': '20230203',
     'outset date': '',
+    'sale date': ''
 }
 
 c019 = {
@@ -300,6 +318,7 @@ c019 = {
     'issue date': '20200214',
     'maturity date': '20230214',
     'outset date': '',
+    'sale date': ''
 }
 
 c020 = {
@@ -316,6 +335,7 @@ c020 = {
     'issue date': '20220111',
     'maturity date': '20230411',
     'outset date': '',
+    'sale date': ''
 }
 
 c021 = {
@@ -332,6 +352,7 @@ c021 = {
     'issue date': '20210408',
     'maturity date': '20230407',
     'outset date': '',
+    'sale date': ''
 }
 
 c022 = {
@@ -348,6 +369,7 @@ c022 = {
     'issue date': '20200213',
     'maturity date': '20230213',
     'outset date': '',
+    'sale date': ''
 }
 
 c023 = {
@@ -364,6 +386,7 @@ c023 = {
     'issue date': '20210727',
     'maturity date': '20230127',
     'outset date': '',
+    'sale date': ''
 }
 
 # untreated coupon
@@ -381,6 +404,7 @@ c024 = {
     'issue date': '20180529',
     'maturity date': '20230529',
     'outset date': '',
+    'sale date': ''
 }
 
 c025 = {
@@ -397,6 +421,7 @@ c025 = {
     'issue date': '20130905',
     'maturity date': '20230905',
     'outset date': '',
+    'sale date': ''
 }
 
 # untreated coupon
@@ -414,6 +439,7 @@ c026 = {
     'issue date': '20210311',
     'maturity date': '20240311',
     'outset date': '',
+    'sale date': ''
 }
 
 # untreated coupon
@@ -431,6 +457,7 @@ c027 = {
     'issue date': '20210525',
     'maturity date': '20240525',
     'outset date': '',
+    'sale date': ''
 }
 
 # untreated coupon
@@ -448,6 +475,7 @@ c028 = {
     'issue date': '20220928',
     'maturity date': '20270928',
     'outset date': '',
+    'sale date': ''
 }
 
 # untreated coupon
@@ -465,6 +493,7 @@ c029 = {
     'issue date': '20200618',
     'maturity date': '20250618',
     'outset date': '',
+    'sale date': ''
 }
 
 # untreated coupon
@@ -482,6 +511,7 @@ c030 = {
     'issue date': '20210204',
     'maturity date': '20260204',
     'outset date': '',
+    'sale date': ''
 }
 
 # untreated coupon
@@ -499,6 +529,7 @@ c031 = {
     'issue date': '20190211',
     'maturity date': '20240209',
     'outset date': '',
+    'sale date': ''
 }
 
 # untreated coupon
@@ -516,6 +547,7 @@ c032 = {
     'issue date': '20200123',
     'maturity date': '20250123',
     'outset date': '',
+    'sale date': ''
 }
 
 # untreated coupon
@@ -533,6 +565,7 @@ c033 = {
     'issue date': '20210525',
     'maturity date': '20240525',
     'outset date': '',
+    'sale date': ''
 }
 
 # untreated coupon
@@ -550,6 +583,7 @@ c034 = {
     'issue date': '20200214',
     'maturity date': '20250214',
     'outset date': '',
+    'sale date': ''
 }
 
 # untreated coupon
@@ -567,23 +601,25 @@ c035 = {
     'issue date': '20200213',
     'maturity date': '20250213',
     'outset date': '',
+    'sale date': ''
 }
 
 # untreated coupon
 c036 = {
     'name': '롯데쇼핑93-1',
     'type': 'coupon',
-    'price': 10126,
+    'price': 10110,
     'coupon rate': 4.752,
     'face value': 10000,
     'payment cycle': 3,
     'amount': 100,
-    'discount rate': 4.708,
+    'discount rate': 4.712,
     'compound interest number': 5,
     'simple interest number': 2,
     'issue date': '20220907',
     'maturity date': '20240906',
-    'outset date': '20240606',
+    'outset date': '20240905',
+    'sale date': ''
 }
 
 # untreated coupon
@@ -601,6 +637,7 @@ c037 = {
     'issue date': '20210127',
     'maturity date': '20250124',
     'outset date': '',
+    'sale date': ''
 }
 
 # untreated coupon
@@ -618,6 +655,7 @@ c038 = {
     'issue date': '20210423',
     'maturity date': '20260423',
     'outset date': '',
+    'sale date': ''
 }
 
 # untreated coupon
@@ -635,6 +673,7 @@ c039 = {
     'issue date': '20190910',
     'maturity date': '20240910',
     'outset date': '',
+    'sale date': ''
 }
 
 # untreated coupon
@@ -652,6 +691,7 @@ c040 = {
     'issue date': '20230116',
     'maturity date': '20240716',
     'outset date': '',
+    'sale date': ''
 }
 
 # untreated coupon
@@ -669,6 +709,7 @@ c041 = {
     'issue date': '20210723',
     'maturity date': '20240723',
     'outset date': '',
+    'sale date': ''
 }
 
 # untreated coupon
@@ -686,6 +727,7 @@ c042 = {
     'issue date': '20210727',
     'maturity date': '20260727',
     'outset date': '',
+    'sale date': ''
 }
 
 # untreated coupon
@@ -703,6 +745,7 @@ c043 = {
     'issue date': '20190911',
     'maturity date': '20240911',
     'outset date': '',
+    'sale date': ''
 }
 
 # untreated coupon
@@ -720,6 +763,7 @@ c044 = {
     'issue date': '20220916',
     'maturity date': '20240913',
     'outset date': '',
+    'sale date': ''
 }
 
 # untreated coupon
@@ -737,6 +781,7 @@ c045 = {
     'issue date': '20220609',
     'maturity date': '20250609',
     'outset date': '',
+    'sale date': ''
 }
 
 # untreated coupon
@@ -754,4 +799,5 @@ c046 = {
     'issue date': '20200203',
     'maturity date': '20230203',
     'outset date': '',
+    'sale date': ''
 }
