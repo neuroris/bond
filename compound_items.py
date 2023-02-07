@@ -69,7 +69,7 @@ cp004 = {
 cp005 = {
     'name': '현대캐피탈1960',
     'type': 'compound',
-    'price': 10273,
+    'price': 10736,
     'coupon rate': 5.980,
     'face value': 10000,
     'payment cycle': 3,
@@ -79,7 +79,7 @@ cp005 = {
     'simple interest number': 2,
     'issue date': '20221215',
     'maturity date': '20251215',
-    'outset date': '',
+    'outset date': '20241217',
     'sale date': ''
 }
 

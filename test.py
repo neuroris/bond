@@ -7,5 +7,7 @@ d = 32
 t = 92
 f = 4
 
-a = math.floor(6.0)
+a = math.ceil(1.0)
+b = math.ceil(1.1)
 print(a)
+print(b)

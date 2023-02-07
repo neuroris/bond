@@ -114,7 +114,7 @@ class Bond:
             term_number = int(remaining_months / self.payment_cycle)
         return term_number
 
-    def get_term_number(self):
+    def get_term_number_deprecated(self):
         if self.type == 'coupon':
             corrected_maturity_date = self.sale_date - relativedelta(days=1)
             corrected_coupon_count = self.get_prepaid_count(corrected_maturity_date)
@@ -123,6 +123,18 @@ class Bond:
         else:
             remaining_months = self.remaining_delta.years * 12 + self.remaining_delta.months
             term_number = int(remaining_months / self.payment_cycle)
+        return term_number
+
+    def get_term_number(self):
+        corrected_sale_date = self.sale_date - relativedelta(days=1)
+        if self.type == 'coupon':
+            corrected_coupon_count = self.get_prepaid_count(corrected_sale_date)
+            prepaid_count = self.get_prepaid_count(self.outset_date)
+            term_number = corrected_coupon_count - prepaid_count
+        else:
+            remaining_delta = relativedelta(corrected_sale_date, self.outset_date)
+            remaining_months = remaining_delta.years * 12 + remaining_delta.months
+            term_number = remaining_months // self.payment_cycle
         return term_number
 
     def get_coupon_number(self):
@@ -159,7 +171,12 @@ class Bond:
                 else:
                     post_remainder = (self.sale_date - self.before_last_coupon_date).days
             else:
-                post_remainder = (self.sale_date - self.outset_date).days
+                if self.is_authentic_maturity:
+                    remainder = (self.sale_date - self.outset_date).days
+                    term = (self.sale_date - self.before_last_coupon_date).days
+                    post_remainder = (365 / self.frequency) * (remainder / term)
+                else:
+                    post_remainder = (self.sale_date - self.outset_date).days
         else:
             post_remainder = (self.sale_date - self.issue_date).days
         return post_remainder
@@ -176,6 +193,13 @@ class Bond:
         current_issue_delta = relativedelta(current_date, self.issue_date)
         current_issue_months = current_issue_delta.years * 12 + current_issue_delta.months
         prepaid_count = current_issue_months // payment_cycle
+        return prepaid_count
+
+    def get_raw_prepaid_count(self, current_date, payment_cycle=None):
+        payment_cycle = payment_cycle if payment_cycle else self.payment_cycle
+        current_issue_delta = relativedelta(current_date, self.issue_date)
+        current_issue_months = current_issue_delta.years * 12 + current_issue_delta.months + current_issue_delta.days / 31
+        prepaid_count = current_issue_months / payment_cycle
         return prepaid_count
 
     def get_previous_coupon_date(self):
@@ -255,6 +279,9 @@ class Bond:
             self.treated_coupon = int(interest) * self.amount
             # coupon = self.treated_coupon #국민주택22-10, 신한투자증권
             coupon = int(self.untreated_coupon) if self.frequency == 1 else self.treated_coupon
+            self.last_untreated_coupon = self.untreated_coupon
+            self.last_treated_coupon = self.treated_coupon
+            self.last_coupon = self.treated_coupon
         elif self.type == 'compound-simple':
             transition_date = self.issue_date + relativedelta(years=self.compound_interest_number)
             compound_interest = self.get_interest(10000, self.issue_date, transition_date)
@@ -262,6 +289,9 @@ class Bond:
             self.untreated_coupon = (compound_interest + simple_interest) * self.amount
             self.treated_coupon = (int(compound_interest) + int(simple_interest)) * self.amount
             coupon = int(self.untreated_coupon)
+            self.last_untreated_coupon = self.untreated_coupon
+            self.last_treated_coupon = self.treated_coupon
+            self.last_coupon = int(self.untreated_coupon)
         return coupon
 
     def get_interest_income(self):
@@ -325,9 +355,9 @@ class Bond:
             deduction = int(deduction_unit * self.amount) #삼성증권, 키움증권
             # deduction = deduction_unit * self.amount #신한투자증권
             tax_base = int(self.coupon - deduction)
-            self.first_tax_base = tax_base
-            self.first_tax = self.calculate_tax(tax_base)
-            tax = self.first_tax
+            self.last_tax_base = tax_base
+            self.last_tax = self.calculate_tax(tax_base)
+            tax = self.last_tax
         elif self.type == 'compound-simple':
             transition_date = self.issue_date + relativedelta(years=self.compound_interest_number)
             if self.outset_date < transition_date:
@@ -342,8 +372,8 @@ class Bond:
                 simple_deduction = int(10000 * (self.coupon_rate / 100) * self.amount * (simple_deduction_days / 365))
                 deduction = compound_deduction + simple_deduction
             tax_base = int(self.coupon - deduction)
-            self.first_tax_base = tax_base
-            self.first_tax = self.calculate_tax(tax_base)
+            self.last_tax_base = tax_base
+            self.last_tax = self.calculate_tax(tax_base)
             tax = self.first_tax
         return tax
 
@@ -441,7 +471,7 @@ class Bond:
         remainder_days = (term_start_date - start_date).days
         return term_number, remainder_days
 
-    def get_discount_term_days(self, start_date, end_date, payment_cycle=None):
+    def get_discount_term_days_deprecated2(self, start_date, end_date, payment_cycle=None):
         payment_cycle = payment_cycle if payment_cycle else self.payment_cycle
         prepaid_count = self.get_prepaid_count(start_date, payment_cycle)
         delta = relativedelta(end_date, start_date)
@@ -451,7 +481,30 @@ class Bond:
         remainder_days = (term_start_date - start_date).days if term_start_date < self.sale_date else 0
         return term_number, remainder_days
 
+    def get_discount_term_days_deprecated3(self, start_date, end_date, payment_cycle=None):
+        payment_cycle = payment_cycle if payment_cycle else self.payment_cycle
+        prepaid_count = self.get_prepaid_count(start_date, payment_cycle)
+        corrected_end_date = end_date - relativedelta(days=1)
+        delta = relativedelta(corrected_end_date, start_date)
+        months = delta.years * 12 + delta.months
+        term_number = months // payment_cycle
+        term_start_date = self.issue_date + (prepaid_count + 1) * relativedelta(months=payment_cycle)
+        remainder_days = (term_start_date - start_date).days if term_start_date < self.sale_date else 0
+        remainder_days = 365 if remainder_days == 366 and payment_cycle == 12 else remainder_days
+        return term_number, remainder_days
+
+    def get_discount_term_days(self, start_date, end_date, payment_cycle=None):
+        payment_cycle = payment_cycle if payment_cycle else self.payment_cycle
+        prepaid_count = self.get_raw_prepaid_count(start_date, payment_cycle)
+        delta = relativedelta(end_date, start_date)
+        months = delta.years * 12 + delta.months
+        term_number = months // payment_cycle
+        term_start_date = self.issue_date + math.ceil(prepaid_count) * relativedelta(months=payment_cycle)
+        remainder_days = (term_start_date - start_date).days if term_start_date < self.sale_date else 0
+        return term_number, remainder_days
+
     def get_term_post_remainder(self, start_date, end_date, payment_cycle=None):
+        payment_cycle = payment_cycle if payment_cycle else self.payment_cycle
         delta = relativedelta(end_date, start_date)
         months = delta.years * 12 + delta.months
         term_number = months // payment_cycle
@@ -459,9 +512,27 @@ class Bond:
         remainder_days = (term_start_date - start_date).days
         return term_number, remainder_days
 
-    def get_term(self, start_date, term_number):
-        payment_delta = relativedelta(months=self.payment_cycle)
+    def get_term_post_remainder_deprecated(self, start_date, end_date, payment_cycle=None):
+        delta = relativedelta(end_date, start_date)
+        months = delta.years * 12 + delta.months
+        term_number = months // payment_cycle
+        term_start_date = end_date - term_number * relativedelta(months=payment_cycle)
+        remainder_days = (term_start_date - start_date).days
+        return term_number, remainder_days
+
+    def get_term(self, start_date, term_number, payment_cycle=None):
+        payment_cycle = payment_cycle if payment_cycle else self.payment_cycle
+        payment_delta = relativedelta(months=payment_cycle)
         previous_term_date = start_date + term_number * payment_delta
+        next_term_date = previous_term_date + payment_delta
+        term = (next_term_date - previous_term_date).days
+        return term
+
+    def get_first_term(self, start_date, payment_cycle=None):
+        payment_cycle = payment_cycle if payment_cycle else self.payment_cycle
+        payment_delta = relativedelta(months=payment_cycle)
+        prepaid_count = self.get_prepaid_count(start_date, payment_cycle)
+        previous_term_date = self.issue_date + prepaid_count * payment_delta
         next_term_date = previous_term_date + payment_delta
         term = (next_term_date - previous_term_date).days
         return term
@@ -535,8 +606,8 @@ class Bond:
         r = discount_rate / 100
         d = remainder_days if remainder_days is not None else self.remainder_days
         term = term if term else 365
-        R = post_remainder if post_remainder else (365 / f)
-        term_number -= 1 if term_number > 0 else 0
+        R = post_remainder if post_remainder is not None else (365 / f)
+        term_number -= 1 if term_number or not post_remainder else 0
 
         dcv = future_value / \
               ((1 + (r / f) * (d / term)) * ((1 + r / f) ** term_number) * (1 + (r * (R / 365))))
@@ -578,9 +649,15 @@ class Bond:
             price += self.get_dcv_conventional(self.last_untreated_coupon, discount_rate, term_number, remainder_days, self.frequency, term, self.post_remainder)
             price += self.get_dcv_conventional(self.maturity_value, discount_rate, term_number, remainder_days, self.frequency, term, self.post_remainder)
         elif self.type == 'compound':
+            # term_number, remainder_days = self.get_discount_term_days(self.outset_date, self.sale_date, 12)
+            term_number, remainder_days = self.get_term_post_remainder(self.outset_date, self.sale_date, 12)
+            # price += self.get_dcv_conventional(self.treated_coupon, discount_rate, term_number, remainder_days, 1)
+            # price += self.get_dcv_conventional(self.maturity_value, discount_rate, term_number, remainder_days, 1)
+
             term_number, remainder_days = self.get_discount_term_days(self.outset_date, self.sale_date, 12)
-            price += self.get_dcv_conventional(self.treated_coupon, discount_rate, term_number, remainder_days, 1)
-            price += self.get_dcv_conventional(self.maturity_value, discount_rate, term_number, remainder_days, 1)
+            first_term = self.get_first_term(self.outset_date, 12)
+            price += self.get_dcv_conventional(self.treated_coupon, discount_rate, term_number, remainder_days, 1, first_term)
+            price += self.get_dcv_conventional(self.maturity_value, discount_rate, term_number, remainder_days, 1, first_term)
         elif self.type == 'compound-simple':
             term_number, remainder_days = self.get_discount_term_days(self.outset_date, self.sale_date, 12)
             price += self.get_dcv_conventional(self.treated_coupon, discount_rate, term_number, remainder_days, 1)
@@ -604,10 +681,12 @@ class Bond:
             price += self.get_dcv_conventional(self.maturity_value, discount_rate, term_number, remainder_days, self.frequency, term, self.post_remainder)
         elif self.type == 'compound':
             term_number, remainder_days = self.get_discount_term_days(self.outset_date, self.sale_date, 12)
-            price += self.get_dcv_conventional(self.treated_coupon, discount_rate, term_number, remainder_days, 1)
+            coupon_income = self.treated_coupon - self.last_tax
+            price += self.get_dcv_conventional(coupon_income, discount_rate, term_number, remainder_days, 1)
             price += self.get_dcv_conventional(self.maturity_value, discount_rate, term_number, remainder_days, 1)
         elif self.type == 'compound-simple':
             term_number, remainder_days = self.get_discount_term_days(self.outset_date, self.sale_date, 12)
+            coupon_income = self.treated_coupon - self.last_tax
             price += self.get_dcv_conventional(self.treated_coupon, discount_rate, term_number, remainder_days, 1)
             price += self.get_dcv_conventional(self.maturity_value, discount_rate, term_number, remainder_days, 1)
         return price
@@ -637,7 +716,7 @@ class Bond:
                 coupon_term, coupon_remainder = self.get_term_post_remainder(self.outset_date, coupon_date, 12)
                 remaining_days = coupon_term * 365 + coupon_remainder
                 middle_income = self.untreated_coupon - self.middle_tax
-                price += self.get_dcv_conventional(middle_income, discount_rate, remaining_days, 1)
+                price += self.get_dcv_theoretical(middle_income, discount_rate, remaining_days, 1)
             term_number, remainder_days = self.get_term_post_remainder(self.outset_date, self.sale_date, 12)
             remaining_days = term_number * 365 + remainder_days
             last_income = self.last_untreated_coupon - self.last_tax
@@ -862,7 +941,7 @@ quick_item.outset_date = ''
 quick_item.maturity_date = '20231006'
 
 item = BondItem()
-item.set(c036)
+item.set(cp005)
 # bond = Bond(quick_item)
 bond = Bond(item)
 

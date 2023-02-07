@@ -572,17 +572,17 @@ c033 = {
 c034 = {
     'name': '팜한농19-2',
     'type': 'coupon',
-    'price': 9472,
+    'price': 9772,
     'coupon rate': 2.224,
     'face value': 10000,
     'payment cycle': 3,
     'amount': 100,
-    'discount rate': 4.708,
+    'discount rate': 12.420,
     'compound interest number': 5,
     'simple interest number': 2,
     'issue date': '20200214',
     'maturity date': '20250214',
-    'outset date': '',
+    'outset date': '20241120',
     'sale date': ''
 }
 
@@ -626,7 +626,7 @@ c036 = {
 c037 = {
     'name': '신한캐피탈433-2',
     'type': 'coupon',
-    'price': 9521,
+    'price': 9800,
     'coupon rate': 1.480,
     'face value': 10000,
     'payment cycle': 3,
@@ -636,7 +636,7 @@ c037 = {
     'simple interest number': 2,
     'issue date': '20210127',
     'maturity date': '20250124',
-    'outset date': '',
+    'outset date': '20241231',
     'sale date': ''
 }
 
@@ -799,5 +799,23 @@ c046 = {
     'issue date': '20200203',
     'maturity date': '20230203',
     'outset date': '',
+    'sale date': ''
+}
+
+# untreated coupon
+c047 = {
+    'name': '호텔롯데69-1',
+    'type': 'coupon',
+    'price': 10000,
+    'coupon rate': 4.801,
+    'face value': 10000,
+    'payment cycle': 3,
+    'amount': 100,
+    'discount rate': 4.230,
+    'compound interest number': 5,
+    'simple interest number': 2,
+    'issue date': '20230127',
+    'maturity date': '20250127',
+    'outset date': '20241230',
     'sale date': ''
 }
