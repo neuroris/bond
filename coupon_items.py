@@ -1,4 +1,4 @@
-c001 = {
+c01 = {
     'name': '케이비국민카드307-2',
     'type': 'coupon',
     'price': 9650,
@@ -15,7 +15,7 @@ c001 = {
     'sale date': ''
 }
 
-c002 = {
+c02 = {
     'name': '현대커머셜443-2',
     'type': 'coupon',
     'price': 9758,
@@ -32,7 +32,7 @@ c002 = {
     'sale date': ''
 }
 
-c003 = {
+c03 = {
     'name': 'LG전자91-2',
     'type': 'coupon',
     'price': 9427,
@@ -49,7 +49,7 @@ c003 = {
     'sale date': ''
 }
 
-c004 = {
+c04 = {
     'name': '한국전력1286',
     'type': 'coupon',
     'price': 10551,
@@ -66,7 +66,7 @@ c004 = {
     'sale date': ''
 }
 
-c005 = {
+c05 = {
     'name': '국민은행4207',
     'type': 'coupon',
     'price': 10071,
@@ -83,7 +83,7 @@ c005 = {
     'sale date': ''
 }
 
-c006 = {
+c06 = {
     'name': '국고00875-2312(20-8)',
     'type': 'coupon',
     'price': 9793,
@@ -100,7 +100,7 @@ c006 = {
     'sale date': ''
 }
 
-c007 = {
+c07 = {
     'name': '기업은행(후)1309이10A-4',
     'type': 'coupon',
     'price': 10037,
@@ -113,11 +113,11 @@ c007 = {
     'simple interest number': 2,
     'issue date': '20130904',
     'maturity date': '20230904',
-    'outset date': '',
+    'outset date': '20230704',
     'sale date': ''
 }
 
-c008 = {
+c08 = {
     'name': '엘지디스플레이41-2',
     'type': 'coupon',
     'price': 9758,
@@ -134,7 +134,7 @@ c008 = {
     'sale date': ''
 }
 
-c009 = {
+c09 = {
     'name': '롯데쇼핑93-1',
     'type': 'coupon',
     'price': 10037,
@@ -151,7 +151,7 @@ c009 = {
     'sale date': ''
 }
 
-c010 = {
+c10 = {
     'name': '국고채권03125-2506(22-4)',
     'type': 'coupon',
     'price': 10037,
@@ -168,7 +168,7 @@ c010 = {
     'sale date': ''
 }
 
-c011 = {
+c11 = {
     'name': '국고채권03000-2303(13-2)',
     'type': 'coupon',
     'price': 10071,
@@ -185,7 +185,7 @@ c011 = {
     'sale date': ''
 }
 
-c012 = {
+c12 = {
     'name': '국고채권00875-2312(20-8)',
     'type': 'coupon',
     'price': 9668,
@@ -202,7 +202,7 @@ c012 = {
     'sale date': ''
 }
 
-c013 = {
+c13 = {
     'name': '효성첨단소재261-2',
     'type': 'coupon',
     'price': 9980,
@@ -219,7 +219,7 @@ c013 = {
     'sale date': ''
 }
 
-c014 = {
+c14 = {
     'name': '오케이캐피탈421',
     'type': 'coupon',
     'price': 9988,
@@ -236,7 +236,7 @@ c014 = {
     'sale date': ''
 }
 
-c015 = {
+c15 = {
     'name': '엘지디스플레이38-2',
     'type': 'coupon',
     'price': 9990,
@@ -253,7 +253,7 @@ c015 = {
     'sale date': ''
 }
 
-c016 = {
+c16 = {
     'name': '케이비국민카드346-1',
     'type': 'coupon',
     'price': 9955,
@@ -270,7 +270,7 @@ c016 = {
     'sale date': ''
 }
 
-c017 = {
+c17 = {
     'name': '지에스에너지4-2',
     'type': 'coupon',
     'price': 9997,
@@ -287,7 +287,7 @@ c017 = {
     'sale date': ''
 }
 
-c018 = {
+c18 = {
     'name': '현대두산인프라코어73',
     'type': 'coupon',
     'price': 10077,
@@ -304,7 +304,7 @@ c018 = {
     'sale date': ''
 }
 
-c019 = {
+c19 = {
     'name': '한국토지신탁39',
     'type': 'coupon',
     'price': 10008,
@@ -321,7 +321,7 @@ c019 = {
     'sale date': ''
 }
 
-c020 = {
+c20 = {
     'name': '한국캐피탈477-2',
     'type': 'coupon',
     'price': 9930,
@@ -338,7 +338,7 @@ c020 = {
     'sale date': ''
 }
 
-c021 = {
+c21 = {
     'name': '비씨카드150-1(지)',
     'type': 'coupon',
     'price': 9935,
@@ -355,7 +355,7 @@ c021 = {
     'sale date': ''
 }
 
-c022 = {
+c22 = {
     'name': '한화235',
     'type': 'coupon',
     'price': 10038,
@@ -372,7 +372,7 @@ c022 = {
     'sale date': ''
 }
 
-c023 = {
+c23 = {
     'name': 'AJ네트웍스47',
     'type': 'coupon',
     'price': 10087,
@@ -390,7 +390,7 @@ c023 = {
 }
 
 # untreated coupon
-c024 = {
+c24 = {
     'name': '효성첨단소재262-2',
     'type': 'coupon',
     'price': 10000,
@@ -407,7 +407,7 @@ c024 = {
     'sale date': ''
 }
 
-c025 = {
+c25 = {
     'name': '하나은행13-09이120갑05후',
     'type': 'coupon',
     'price': 10057,
@@ -425,7 +425,7 @@ c025 = {
 }
 
 # untreated coupon
-c026 = {
+c26 = {
     'name': '코웨이4-1',
     'type': 'coupon',
     'price': 9715,
@@ -443,7 +443,7 @@ c026 = {
 }
 
 # untreated coupon
-c027 = {
+c27 = {
     'name': '현대비앤지스틸204',
     'type': 'coupon',
     'price': 9687,
@@ -461,7 +461,7 @@ c027 = {
 }
 
 # untreated coupon
-c028 = {
+c28 = {
     'name': '한국전력1287',
     'type': 'coupon',
     'price': 10975,
@@ -479,7 +479,7 @@ c028 = {
 }
 
 # untreated coupon
-c029 = {
+c29 = {
     'name': '티케이지태광11-2',
     'type': 'coupon',
     'price': 9472,
@@ -497,7 +497,7 @@ c029 = {
 }
 
 # untreated coupon
-c030 = {
+c30 = {
     'name': 'SK렌터카45-2(녹)',
     'type': 'coupon',
     'price': 9472,
@@ -515,7 +515,7 @@ c030 = {
 }
 
 # untreated coupon
-c031 = {
+c31 = {
     'name': '롯데글로벌로지스45-2',
     'type': 'coupon',
     'price': 9472,
@@ -533,7 +533,7 @@ c031 = {
 }
 
 # untreated coupon
-c032 = {
+c32 = {
     'name': '엘에스전선23-2',
     'type': 'coupon',
     'price': 9472,
@@ -551,7 +551,7 @@ c032 = {
 }
 
 # untreated coupon
-c033 = {
+c33 = {
     'name': '현대비앤지스틸204',
     'type': 'coupon',
     'price': 9472,
@@ -569,7 +569,7 @@ c033 = {
 }
 
 # untreated coupon
-c034 = {
+c34 = {
     'name': '팜한농19-2',
     'type': 'coupon',
     'price': 9772,
@@ -587,7 +587,7 @@ c034 = {
 }
 
 # untreated coupon
-c035 = {
+c35 = {
     'name': '대림37-2',
     'type': 'coupon',
     'price': 9472,
@@ -605,10 +605,10 @@ c035 = {
 }
 
 # untreated coupon
-c036 = {
+c36 = {
     'name': '롯데쇼핑93-1',
     'type': 'coupon',
-    'price': 10110,
+    'price': 10010,
     'coupon rate': 4.752,
     'face value': 10000,
     'payment cycle': 3,
@@ -618,12 +618,12 @@ c036 = {
     'simple interest number': 2,
     'issue date': '20220907',
     'maturity date': '20240906',
-    'outset date': '20240905',
+    'outset date': '20240607',
     'sale date': ''
 }
 
 # untreated coupon
-c037 = {
+c37 = {
     'name': '신한캐피탈433-2',
     'type': 'coupon',
     'price': 9800,
@@ -641,7 +641,7 @@ c037 = {
 }
 
 # untreated coupon
-c038 = {
+c38 = {
     'name': '농협금융지주31-2',
     'type': 'coupon',
     'price': 9472,
@@ -659,7 +659,7 @@ c038 = {
 }
 
 # untreated coupon
-c039 = {
+c39 = {
     'name': '현대케피코7-2',
     'type': 'coupon',
     'price': 9616,
@@ -677,7 +677,7 @@ c039 = {
 }
 
 # untreated coupon
-c040 = {
+c40 = {
     'name': '롯데리츠4',
     'type': 'coupon',
     'price': 10054,
@@ -695,7 +695,7 @@ c040 = {
 }
 
 # untreated coupon
-c041 = {
+c41 = {
     'name': '아주산업35',
     'type': 'coupon',
     'price': 9698,
@@ -713,7 +713,7 @@ c041 = {
 }
 
 # untreated coupon
-c042 = {
+c42 = {
     'name': '컴투스1-2',
     'type': 'coupon',
     'price': 9253,
@@ -731,7 +731,7 @@ c042 = {
 }
 
 # untreated coupon
-c043 = {
+c43 = {
     'name': '쌍용양회313-2',
     'type': 'coupon',
     'price': 9755,
@@ -749,10 +749,10 @@ c043 = {
 }
 
 # untreated coupon
-c044 = {
+c44 = {
     'name': 'SK304-1',
     'type': 'coupon',
-    'price': 10148,
+    'price': 10048,
     'coupon rate': 4.638,
     'face value': 10000,
     'payment cycle': 3,
@@ -762,12 +762,12 @@ c044 = {
     'simple interest number': 2,
     'issue date': '20220916',
     'maturity date': '20240913',
-    'outset date': '',
+    'outset date': '20240718',
     'sale date': ''
 }
 
 # untreated coupon
-c045 = {
+c45 = {
     'name': '해태제과식품17',
     'type': 'coupon',
     'price': 10015,
@@ -785,7 +785,7 @@ c045 = {
 }
 
 # untreated coupon
-c046 = {
+c46 = {
     'name': '대한항공91-2',
     'type': 'coupon',
     'price': 10085,
@@ -803,7 +803,7 @@ c046 = {
 }
 
 # untreated coupon
-c047 = {
+c47 = {
     'name': '호텔롯데69-1',
     'type': 'coupon',
     'price': 10000,
@@ -816,6 +816,24 @@ c047 = {
     'simple interest number': 2,
     'issue date': '20230127',
     'maturity date': '20250127',
-    'outset date': '20241230',
+    'outset date': '20241127',
+    'sale date': ''
+}
+
+# untreated coupon
+c48 = {
+    'name': '한국전력1272',
+    'type': 'coupon',
+    'price': 10100,
+    'coupon rate': 4.630,
+    'face value': 10000,
+    'payment cycle': 6,
+    'amount': 100,
+    'discount rate': 4.230,
+    'compound interest number': 5,
+    'simple interest number': 2,
+    'issue date': '20220906',
+    'maturity date': '20240906',
+    'outset date': '20240307',
     'sale date': ''
 }

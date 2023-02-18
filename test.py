@@ -7,7 +7,5 @@ d = 32
 t = 92
 f = 4
 
-a = math.ceil(1.0)
-b = math.ceil(1.1)
-print(a)
-print(b)
+a = 3.0
+print(a - int(a))

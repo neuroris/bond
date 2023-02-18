@@ -1,4 +1,4 @@
-cs001 = {
+s01 = {
     'name': '서울도시철도공채증권22-09',
     'type': 'compound-simple',
     'price': 8100,
@@ -15,7 +15,7 @@ cs001 = {
     'sale date': ''
 }
 
-cs002 = {
+s02 = {
     'name': '서울도시철도공채증권22-10',
     'type': 'compound-simple',
     'price': 8100,
@@ -32,7 +32,7 @@ cs002 = {
     'sale date': ''
 }
 
-cs003 = {
+s03 = {
     'name': '서울도시철도공채증권16-09',
     'type': 'compound-simple',
     'price': 10200,
@@ -49,7 +49,7 @@ cs003 = {
     'sale date': ''
 }
 
-cs004 = {
+s04 = {
     'name': '서울도시철도공채증권17-12',
     'type': 'compound-simple',
     'price': 10147,
@@ -66,7 +66,7 @@ cs004 = {
     'sale date': ''
 }
 
-cs005 = {
+s05 = {
     'name': '서울도시철도공채증권18-01',
     'type': 'compound-simple',
     'price': 9140,
@@ -83,7 +83,7 @@ cs005 = {
     'sale date': ''
 }
 
-cs006 = {
+s06 = {
     'name': '서울도시철도공채증권16-01',
     'type': 'compound-simple',
     'price': 10300,
@@ -100,7 +100,7 @@ cs006 = {
     'sale date': ''
 }
 
-cs007 = {
+s07 = {
     'name': '서울도시철도공채증권18-03',
     'type': 'compound-simple',
     'price': 9140,
@@ -117,7 +117,7 @@ cs007 = {
     'sale date': ''
 }
 
-cs008 = {
+s08 = {
     'name': '서울도시철도공채증권18-08',
     'type': 'compound-simple',
     'price': 9240,

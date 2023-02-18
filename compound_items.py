@@ -1,4 +1,4 @@
-cp001 = {
+p01 = {
     'name': '국민주택1종채권22-09',
     'type': 'compound',
     'price': 8670,
@@ -15,7 +15,7 @@ cp001 = {
     'sale date': ''
 }
 
-cp002 = {
+p02 = {
     'name': '국민주택1종채권22-10',
     'type': 'compound',
     'price': 8866,
@@ -32,7 +32,7 @@ cp002 = {
     'sale date': ''
 }
 
-cp003 = {
+p03 = {
     'name': '전북지역개발20-12',
     'type': 'compound',
     'price': 9457,
@@ -49,7 +49,7 @@ cp003 = {
     'sale date': ''
 }
 
-cp004 = {
+p04 = {
     'name': '울산지역개발21-04',
     'type': 'compound',
     'price': 9333,
@@ -66,7 +66,7 @@ cp004 = {
     'sale date': ''
 }
 
-cp005 = {
+p05 = {
     'name': '현대캐피탈1960',
     'type': 'compound',
     'price': 10736,
@@ -79,11 +79,11 @@ cp005 = {
     'simple interest number': 2,
     'issue date': '20221215',
     'maturity date': '20251215',
-    'outset date': '20241217',
+    'outset date': '20241215',
     'sale date': ''
 }
 
-cp006 = {
+p06 = {
     'name': '현대캐피탈1945-2',
     'type': 'compound',
     'price': 10263,
@@ -100,7 +100,7 @@ cp006 = {
     'sale date': ''
 }
 
-cp007 = {
+p07 = {
     'name': '국민주택1종채권18-04',
     'type': 'compound',
     'price': 10750,
@@ -117,7 +117,7 @@ cp007 = {
     'sale date': ''
 }
 
-cp008 = {
+p08 = {
     'name': '국민주택1종채권19-07',
     'type': 'compound',
     'price': 9910.1,
@@ -134,7 +134,7 @@ cp008 = {
     'sale date': ''
 }
 
-cp009 = {
+p09 = {
     'name': '국민주택1종채권21-12',
     'type': 'compound',
     'price': 9102,
@@ -151,7 +151,7 @@ cp009 = {
     'sale date': ''
 }
 
-cp010 = {
+p10 = {
     'name': '국민주택1종채권21-11',
     'type': 'compound',
     'price': 9102,
@@ -168,7 +168,7 @@ cp010 = {
     'sale date': ''
 }
 
-cp011 = {
+p11 = {
     'name': '국민주택1종채권18-06',
     'type': 'compound',
     'price': 10602,
@@ -185,7 +185,7 @@ cp011 = {
     'sale date': ''
 }
 
-cp012 = {
+p12 = {
     'name': '국민주택1종채권20-03',
     'type': 'compound',
     'price': 9602,
@@ -202,7 +202,7 @@ cp012 = {
     'sale date': ''
 }
 
-cp013 = {
+p13 = {
     'name': '국민주택1종채권19-08',
     'type': 'compound',
     'price': 9802,
@@ -219,7 +219,7 @@ cp013 = {
     'sale date': ''
 }
 
-cp014 = {
+p14 = {
     'name': '국민주택1종채권19-09',
     'type': 'compound',
     'price': 9802,
@@ -236,7 +236,7 @@ cp014 = {
     'sale date': ''
 }
 
-cp015 = {
+p15 = {
     'name': '국민주택1종채권19-12',
     'type': 'compound',
     'price': 9802,
@@ -253,7 +253,7 @@ cp015 = {
     'sale date': ''
 }
 
-cp016 = {
+p16 = {
     'name': '국민주택1종채권20-01',
     'type': 'compound',
     'price': 9802,
@@ -270,7 +270,7 @@ cp016 = {
     'sale date': ''
 }
 
-cp017 = {
+p17 = {
     'name': '국민주택1종채권20-02',
     'type': 'compound',
     'price': 9802,
@@ -287,7 +287,7 @@ cp017 = {
     'sale date': ''
 }
 
-cp018 = {
+p18 = {
     'name': '경기지역개발채권20-01',
     'type': 'compound',
     'price': 9802,
@@ -304,7 +304,7 @@ cp018 = {
     'sale date': ''
 }
 
-cp019 = {
+p19 = {
     'name': '경기지역개발채권20-02',
     'type': 'compound',
     'price': 9802,
@@ -321,7 +321,7 @@ cp019 = {
     'sale date': ''
 }
 
-cp020 = {
+p20 = {
     'name': '현대캐피탈1943-4',
     'type': 'compound',
     'price': 10151,
@@ -338,7 +338,7 @@ cp020 = {
     'sale date': ''
 }
 
-cp021 = {
+p21 = {
     'name': '현대캐피탈1650-2',
     'type': 'compound',
     'price': 10089,
@@ -355,7 +355,7 @@ cp021 = {
     'sale date': ''
 }
 
-cp022 = {
+p22 = {
     'name': '대전지역개발채권18-01',
     'type': 'compound',
     'price': 10520,
@@ -372,7 +372,7 @@ cp022 = {
     'sale date': ''
 }
 
-cp023 = {
+p23 = {
     'name': '경기지역개발20-03',
     'type': 'compound',
     'price': 9714,
@@ -389,7 +389,7 @@ cp023 = {
     'sale date': ''
 }
 
-cp024 = {
+p24 = {
     'name': '경북지역개발22-09',
     'type': 'compound',
     'price': 8803,
@@ -406,7 +406,7 @@ cp024 = {
     'sale date': ''
 }
 
-cp025 = {
+p25 = {
     'name': '경기지역개발20-03',
     'type': 'compound',
     'price': 9749,
@@ -423,7 +423,7 @@ cp025 = {
     'sale date': ''
 }
 
-cp026 = {
+p26 = {
     'name': '경기주택도시공사보상22-05가',
     'type': 'compound',
     'price': 9675,
@@ -440,7 +440,7 @@ cp026 = {
     'sale date': ''
 }
 
-cp027 = {
+p27 = {
     'name': '강원지역개발22-12',
     'type': 'compound',
     'price': 8797,
@@ -457,7 +457,7 @@ cp027 = {
     'sale date': ''
 }
 
-cp028 = {
+p28 = {
     'name': '충북지역개발21-04',
     'type': 'compound',
     'price': 9369,
@@ -474,7 +474,7 @@ cp028 = {
     'sale date': ''
 }
 
-cp029 = {
+p29 = {
     'name': '충남지역개발20-12',
     'type': 'compound',
     'price': 9485,
@@ -488,5 +488,73 @@ cp029 = {
     'issue date': '20201231',
     'maturity date': '20251231',
     'outset date': '',
+    'sale date': ''
+}
+
+p30 = {
+    'name': '전북지역개발20-05',
+    'type': 'compound',
+    'price': 9763,
+    'coupon rate': 1.050,
+    'face value': 10000,
+    'payment cycle': 12,
+    'amount': 100,
+    'discount rate': 10,
+    'compound interest number': 5,
+    'simple interest number': 2,
+    'issue date': '20200531',
+    'maturity date': '20240531',
+    'outset date': '20230531',
+    'sale date': ''
+}
+
+p31 = {
+    'name': '경기지역개발2206',
+    'type': 'compound',
+    'price': 9094,
+    'coupon rate': 1.050,
+    'face value': 10000,
+    'payment cycle': 12,
+    'amount': 100,
+    'discount rate': 10,
+    'compound interest number': 5,
+    'simple interest number': 2,
+    'issue date': '20220630',
+    'maturity date': '20270630',
+    'outset date': '',
+    'sale date': ''
+}
+
+p32 = {
+    'name': '경기주택도시공사보상22-02가',
+    'type': 'compound',
+    'price': 9766,
+    'coupon rate': 1.610,
+    'face value': 10000,
+    'payment cycle': 12,
+    'amount': 100,
+    'discount rate': 7.391,
+    'compound interest number': 5,
+    'simple interest number': 2,
+    'issue date': '20220228',
+    'maturity date': '20250228',
+    'outset date': '20240228',
+    'sale date': ''
+}
+
+p33 = {
+    'name': '경기주택도시공사보상22-05가',
+    'type': 'compound',
+    'price': 9766,
+    'coupon rate': 2.130,
+    'face value': 10000,
+    'payment cycle': 12,
+    'amount': 100,
+    'discount rate': 7.391,
+    'compound interest number': 5,
+    'simple interest number': 2,
+    'issue date': '20220531',
+    'maturity date': '20250531',
+    'outset date': '20230531',
     'sale date': ''
 }
