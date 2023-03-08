@@ -2,9 +2,9 @@ from datetime import datetime, timedelta, date, time
 from dateutil.relativedelta import relativedelta
 import math
 
-day1 = datetime.strptime('20250228', '%Y%m%d')
-day2 = datetime.strptime('20250228', '%Y%m%d')
-day3 = datetime.strptime('20240228', '%Y%m%d')
+day1 = datetime.strptime('20271028', '%Y%m%d')
+day2 = datetime.strptime('20270928', '%Y%m%d')
+day3 = datetime.strptime('20230803', '%Y%m%d')
 day4 = datetime.strptime('20230527', '%Y%m%d')
 today = datetime.today().strftime('%Y%m%d')
 
@@ -13,5 +13,5 @@ delta = relativedelta(day2, day1)
 print(days)
 print(delta)
 
-d = (day2 - day1 - day3).days
-print(d)
+days2 = (day3 - day2).days
+print(days2)

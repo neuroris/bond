@@ -1,11 +1,9 @@
 import math
 
-r = 0.1
-m = 10000
-c = 500
-d = 32
-t = 92
-f = 4
+r = 0.01
+c = 10284.5
 
-a = 3.0
-print(a - int(a))
+a = c / (1 + r / 2 * 62 / 184)
+b = c / (1 + r * 62 / 365)
+print(a)
+print(b)
