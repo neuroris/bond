@@ -516,16 +516,16 @@ c28 = {
     'face value': 10000,
     'payment cycle': 6,
     'amount': 100,
-    'price': 11088,
+    'price': 11110,
     'discount rate': 0,
-    'sale price': 10284,
+    'sale price': 10235,
     'sale discount rate': 0,
     'compound interest number': 5,
     'simple interest number': 2,
     'issue date': '20220928',
     'maturity date': '20270928',
     'outset date': '',
-    'sale date': '20270327'
+    'sale date': '20250416'
 }
 
 # untreated coupon

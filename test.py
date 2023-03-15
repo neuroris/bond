@@ -1,21 +1,20 @@
 import math
 
-r = 0.01
-c = 10284.5
+r = 10.000
+r /= 100
+# fv = 1056900
+fv = 1028450
+# fv = 1056000
+f = 2
+T = 181
+R = 1
 
-a = c / (1 + r / 2 * 62 / 184)
-b = c / (1 + r * 62 / 365)
-print(a)
-print(b)
+# price = fv / ((1 + (r / f) * (R / T)) * (1 + r / f))
+# price = fv / ((1 + (r / f) * (R / T)) * 1.05)
+price = fv / ((1 + (r / f) * (R / T)) * (1 + r / f))
+price2 = 28450 / (1 + (r / f) * (R / T))
+price3 = price + price2
 
-rr = 12.051
-rr /= 100
-n = 187.5 / 365
-d = 10284.5 / (1 + rr) ** n
-print(d)
-
-rrr = 5.689
-rrr /= 100
-nn = 182.5 / 365
-e = 10284.5 / (1 + rrr / 2)
-print(e)
+print(price / 100)
+print(price2 / 100)
+print(price3 / 100)
