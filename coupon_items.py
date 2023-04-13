@@ -677,14 +677,14 @@ c36 = {
     'payment cycle': 3,
     'amount': 100,
     'price': 10010,
-    'discount rate': 4.712,
+    'discount rate': 3.876,
     'sale price': 0,
-    'sale discount rate': 0,
+    'sale discount rate': 3.876,
     'compound interest number': 5,
     'simple interest number': 2,
     'issue date': '20220907',
     'maturity date': '20240906',
-    'outset date': '20240607',
+    'outset date': '',
     'sale date': ''
 }
 

@@ -82,15 +82,15 @@ s05 = {
     'payment cycle': 12,
     'amount': 100,
     'price': 9140,
-    'discount rate': 10,
+    'discount rate': 3.253,
     'sale price': 0,
-    'sale discount rate': 0,
+    'sale discount rate': 3.253,
     'compound interest number': 5,
     'simple interest number': 2,
     'issue date': '20180131',
     'maturity date': '20250131',
     'outset date': '',
-    'sale date': ''
+    'sale date': '20240114'
 }
 
 s06 = {
