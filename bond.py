@@ -198,20 +198,25 @@ class Bond:
             previous_coupon_date = self.issue_date
         return previous_coupon_date
 
-    def get_before_last_coupon_date(self, end_date):
+    def get_before_last_coupon_date_deprecated(self, end_date):
         delta = relativedelta(end_date, self.issue_date)
         delta_months = delta.years * 12 + delta.months
         coupon_count = math.ceil(delta_months / self.payment_cycle)
         before_last_coupon_date = self.issue_date + (coupon_count - 1) * self.term
         return before_last_coupon_date
 
-    def get_interest_start_date(self, end_date):
-        if self.type == 'coupon':
-            prepaid_count = self.get_prepaid_count(end_date)
-            interest_start_date = self.issue_date + prepaid_count * self.term
-        else:
-            interest_start_date = self.issue_date
-        return interest_start_date
+    def get_before_last_coupon_date(self, end_date):
+        prepaid_count = self.get_prepaid_count(end_date)
+        before_last_coupon_date = self.issue_date + prepaid_count * self.term
+        return before_last_coupon_date
+
+    # def get_interest_start_date(self, end_date):
+    #     if self.type == 'coupon':
+    #         prepaid_count = self.get_prepaid_count(end_date)
+    #         interest_start_date = self.issue_date + prepaid_count * self.term
+    #     else:
+    #         interest_start_date = self.issue_date
+    #     return interest_start_date
 
     def check_authenticity(self, end_date):
         delta = relativedelta(end_date, self.issue_date)
@@ -241,13 +246,14 @@ class Bond:
                 self.last_untreated_coupon = self.untreated_coupon
                 self.last_treated_coupon = self.treated_coupon
             else:
-                last_period = self.sale_date - self.before_last_coupon_date
-                self.last_untreated_coupon = annual_interest * (last_period.days / 365) * self.amount
-                self.last_treated_coupon = int(annual_interest * (last_period.days / 365)) * self.amount
-                # next_last_coupon_date = self.get_before_last_coupon_date(self.sale_date + self.term)
-                # last_term = next_last_coupon_date - self.before_last_coupon_date
-                # self.last_untreated_coupon = term_interest * (last_period.days / last_term.days) * self.amount
-                # self.last_treated_coupon = int(term_interest * (last_period.days / last_term.days)) * self.amount
+                if self.sale_date == self.maturity_date:
+                    last_period = self.sale_date - self.before_last_coupon_date
+                    self.last_untreated_coupon = annual_interest * (last_period.days / 365) * self.amount
+                    self.last_treated_coupon = int(annual_interest * (last_period.days / 365)) * self.amount
+                else:
+                    last_interest = self.get_interest(10000, self.before_last_coupon_date, self.sale_date)
+                    self.last_untreated_coupon = last_interest * self.amount
+                    self.last_treated_coupon = int(last_interest) * self.amount
         elif self.type == 'compound':
             interest = self.get_interest(10000, self.issue_date, self.sale_date)
             self.untreated_coupon = interest * self.amount
@@ -364,30 +370,34 @@ class Bond:
     #     return interest_income
 
     def set_valuations(self):
-        # self.interest_outset = self.get_interest(10000, self.interest_outset_start_date, self.outset_date)
-        # self.interest_sale = self.get_interest(10000, self.interest_sale_start_date, self.sale_date)
-        # self.valuation_outset = 10000 + self.interest_outset
-        # self.valuation_sale = 10000 + self.interest_sale
-        # self.valuation_profit = (self.valuation_sale - self.valuation_outset) * self.amount
-        # self.coupon_profit = self.untreated_coupon * self.term_number if self.type == 'coupon' else 0
-
         if self.type == 'coupon':
             annual_interest = 10000 * (self.coupon_rate / 100)
             outset_interest_start_count = self.get_prepaid_count(self.outset_date)
-            sale_interest_start_count = self.get_prepaid_count(self.sale_date)
             outset_interest_start_date = self.issue_date + outset_interest_start_count * self.term
-            sale_interest_start_date = self.issue_date + sale_interest_start_count * self.term
             outset_period = self.outset_date - outset_interest_start_date
-            sale_period = self.sale_date - sale_interest_start_date
             self.interest_outset = annual_interest * (outset_period.days / 365)
-            self.interest_sale = annual_interest * (sale_period.days / 365)
-            self.coupon_profit = self.untreated_coupon * self.term_number if self.type == 'coupon' else 0
+            if self.sale_date_is_authentic:
+                self.interest_sale = annual_interest / self.frequency
+            else:
+                sale_interest_start_count = self.get_prepaid_count(self.sale_date)
+                sale_interest_start_date = self.issue_date + sale_interest_start_count * self.term
+                sale_period = self.sale_date - sale_interest_start_date
+                self.interest_sale = annual_interest * (sale_period.days / 365)
+            coupon_number = self.term_number + 1 if self.sale_date_is_authentic else self.term_number
+            self.coupon_profit = self.untreated_coupon * coupon_number if self.type == 'coupon' else 0
         elif self.type == 'compound':
             self.interest_outset = self.get_interest(10000, self.issue_date, self.outset_date)
             self.interest_sale = self.get_interest(10000, self.issue_date, self.sale_date)
         elif self.type == 'compound-simple':
-            self.interest_outset = self.get_interest(10000, self.issue_date, self.outset_date)
-            self.interest_sale = self.get_interest(10000, self.issue_date, self.sale_date)
+            transition_date = self.issue_date + relativedelta(years=self.compound_interest_number)
+            outset_compound_interest = self.get_interest(10000, self.issue_date, min(transition_date, self.outset_date))
+            outset_simple_interest_number = self.get_simple_interest_number(transition_date, self.outset_date)
+            outset_simple_interest = 10000 * (self.coupon_rate / 100) * outset_simple_interest_number
+            self.interest_outset = outset_compound_interest + outset_simple_interest
+            sale_compound_interest = self.get_interest(10000, self.issue_date, min(transition_date, self.sale_date))
+            sale_simple_interest_number = self.get_simple_interest_number(transition_date, self.sale_date)
+            sale_simple_interest = 10000 * (self.coupon_rate / 100) * sale_simple_interest_number
+            self.interest_sale = sale_compound_interest + sale_simple_interest
         self.valuation_outset = 10000 + self.interest_outset
         self.valuation_sale = 10000 + self.interest_sale
         self.valuation_profit = (self.valuation_sale - self.valuation_outset) * self.amount
@@ -405,10 +415,10 @@ class Bond:
             if self.coupon_number >= 3:
                 self.middle_tax_base = self.untreated_coupon
                 self.middle_tax = self.calculate_tax(self.untreated_coupon)
-            last_period = self.sale_date - self.before_last_coupon_date
+            last_period = (self.sale_date - self.before_last_coupon_date).days
             deduction_days = (self.outset_date - self.before_last_coupon_date).days
             deduction_days = deduction_days if deduction_days > 0 else 0
-            last_coupon_deduction = int(self.last_untreated_coupon * (deduction_days / last_period.days))
+            last_coupon_deduction = int(self.last_untreated_coupon * (deduction_days / last_period)) if last_period else 0
             last_tax_base = int(self.last_untreated_coupon - last_coupon_deduction)
             self.last_tax_base = last_tax_base
             self.last_tax = self.calculate_tax(last_tax_base)
@@ -1003,7 +1013,8 @@ class Bond:
         discount_rate = discount_rate if discount_rate else self.given_sale_discount_rate
         maturity = True if self.sale_date == self.maturity_date else False
         sale_date = self.maturity_before_last_coupon_date if maturity and self.given_sale_price else self.sale_date
-        maturity_coupon = self.maturity_untreated_coupon if maturity else self.maturity_treated_coupon
+        # maturity_coupon = self.maturity_untreated_coupon if maturity else self.maturity_treated_coupon
+        maturity_coupon = self.maturity_untreated_coupon
         price = 0
         if self.type == 'coupon':
             cycle = self.payment_cycle

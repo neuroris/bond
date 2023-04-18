@@ -677,15 +677,15 @@ c36 = {
     'payment cycle': 3,
     'amount': 100,
     'price': 10010,
-    'discount rate': 3.881,
+    'discount rate': 3.897,
     'sale price': 0,
-    'sale discount rate': 3.881,
+    'sale discount rate': 3.897,
     'compound interest number': 5,
     'simple interest number': 2,
     'issue date': '20220907',
     'maturity date': '20240906',
     'outset date': '',
-    'sale date': ''
+    'sale date': '20230905'
 }
 
 # untreated coupon
