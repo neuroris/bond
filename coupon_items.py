@@ -677,15 +677,15 @@ c36 = {
     'payment cycle': 3,
     'amount': 100,
     'price': 10010,
-    'discount rate': 3.897,
+    'discount rate': 3.938,
     'sale price': 0,
-    'sale discount rate': 3.897,
+    'sale discount rate': 3.938,
     'compound interest number': 5,
     'simple interest number': 2,
     'issue date': '20220907',
     'maturity date': '20240906',
     'outset date': '',
-    'sale date': '20230905'
+    'sale date': '20240606'
 }
 
 # untreated coupon
@@ -925,5 +925,25 @@ c48 = {
     'issue date': '20220906',
     'maturity date': '20240906',
     'outset date': '20240307',
+    'sale date': ''
+}
+
+# untreated coupon
+c49 = {
+    'name': '케이비국민카드281-2',
+    'type': 'coupon',
+    'coupon rate': 1.527,
+    'face value': 10000,
+    'payment cycle': 3,
+    'amount': 100,
+    'price': 10100,
+    'discount rate': 3.595,
+    'sale price': 0,
+    'sale discount rate': 3.595,
+    'compound interest number': 5,
+    'simple interest number': 2,
+    'issue date': '20190823',
+    'maturity date': '20240823',
+    'outset date': '',
     'sale date': ''
 }
