@@ -685,7 +685,7 @@ c36 = {
     'issue date': '20220907',
     'maturity date': '20240906',
     'outset date': '',
-    'sale date': '20240606'
+    'sale date': '20240607'
 }
 
 # untreated coupon
