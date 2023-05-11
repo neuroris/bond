@@ -70,6 +70,7 @@ class Bond:
         self.profit = 0.0
         self.profit_rate = 0.0
         self.profit_rate_annual = 0.0
+        self.profit_rate_annual_pretax = 0.0
         self.CAGR = 0.0
         self.CAGR_bank = 0.0
         self.profit_rate_bank = 0.0
@@ -139,6 +140,8 @@ class Bond:
         self.maturity_fraction = self.get_coupon_fraction(self.maturity_date)
         self.sale_date_is_authentic = self.check_authenticity(self.sale_date)
         self.maturity_date_is_authentic = self.check_authenticity(self.maturity_date)
+        self.authentic_repayment = True if self.sale_date == self.maturity_date and self.sale_date_is_authentic else False
+        self.authentic_sale_but_not_maturity = True if self.sale_date_is_authentic and not self.maturity_date_is_authentic else False
         self.set_coupons()
         self.tax = self.get_tax()
 
@@ -182,17 +185,17 @@ class Bond:
             coupon_number = 0
         return coupon_number
 
-    def get_coupon_number_deprecated(self, term_number):
-        coupon_number = 0
-        if self.type == 'coupon':
-            coupon_number = term_number + 1
-        elif self.type == 'compound':
-            coupon_number = 1
-        elif self.type == 'compound-simple':
-            coupon_number = 1
-        elif self.type == 'discount':
-            coupon_number = 0
-        return coupon_number
+    # def get_coupon_number_deprecated(self, term_number):
+    #      coupon_number = 0
+    #     if self.type == 'coupon':
+    #         coupon_number = term_number + 1
+    #     elif self.type == 'compound':
+    #         coupon_number = 1
+    #     elif self.type == 'compound-simple':
+    #         coupon_number = 1
+    #     elif self.type == 'discount':
+    #         coupon_number = 0
+    #     return coupon_number
 
     def get_remaining_days(self):
         day_span_date = self.sale_date - self.outset_date
@@ -216,7 +219,7 @@ class Bond:
     def get_next_pay_count(self, current_date, payment_cycle=None):
         payment_cycle = payment_cycle if payment_cycle else self.payment_cycle
         current_issue_delta = relativedelta(current_date, self.issue_date)
-        current_issue_months = current_issue_delta.years * 12 + current_issue_delta.months
+        current_issue_months = current_issue_delta.years * 12 + current_issue_delta.months + current_issue_delta.days / 31
         next_pay_count = math.ceil(current_issue_months / payment_cycle)
         return next_pay_count
 
@@ -358,11 +361,19 @@ class Bond:
             if self.coupon_number >= 3:
                 self.middle_tax_base = int(self.untreated_coupon)
                 self.middle_tax = self.calculate_tax(self.untreated_coupon)
-            last_period = (self.sale_date - self.sale_interest_start_date).days
-            deduction_days = (self.outset_date - self.sale_interest_start_date).days
-            deduction_days = deduction_days if deduction_days > 0 else 0
-            last_coupon_deduction = int(self.last_coupon * (deduction_days / last_period)) if last_period else 0
-            last_tax_base = int(self.last_coupon - last_coupon_deduction)
+
+            # last_period = (self.sale_date - self.sale_interest_start_date).days
+            # deduction_days = (self.outset_date - self.sale_interest_start_date).days
+            # deduction_days = deduction_days if deduction_days > 0 else 0
+
+            last_term = True if self.coupon_number == 1 else False
+            last_period = (self.sale_date - self.outset_interest_start_date).days
+            deduction_days = (self.outset_date - self.outset_interest_start_date).days if last_term else 0
+
+            # last_coupon_deduction = int(self.last_coupon * (deduction_days / last_period)) if last_period else 0
+            last_coupon_deduction = int(self.last_coupon * (deduction_days / last_period)) if last_term else 0
+
+            last_tax_base = int(round(self.last_coupon, 6) - last_coupon_deduction)
             self.last_tax_base = last_tax_base
             self.last_tax = self.calculate_tax(last_tax_base)
             tax = self.first_tax + self.middle_tax * (self.coupon_number - 2) + self.last_tax
@@ -1029,16 +1040,16 @@ class Bond:
             self.discount_rate_maturity = int(self.get_discount_rate_maturity() * 1000) / 1000
             self.discount_rate = int(self.get_discount_rate() * 1000) / 1000
             self.discount_rate_tax = int(self.get_discount_rate_tax() * 1000) / 1000
-            self.discount_rate_tax_bank = round(self.discount_rate_tax / 0.846, 3)
+            self.discount_rate_tax_bank = int(self.discount_rate_tax / 0.846 * 1000) / 1000
             self.discount_rate_wook = int(self.get_discount_rate_wook() * 1000) / 1000
             self.discount_rate_wook_tax = int(self.get_discount_rate_wook_tax() * 1000) / 1000
-            self.discount_rate_wook_tax_bank = round(self.discount_rate_wook_tax / 0.846, 3)
+            self.discount_rate_wook_tax_bank = int(self.discount_rate_wook_tax / 0.846 * 1000) / 1000
         elif self.given_discount_rate:
             self.discount_rate = self.given_discount_rate
-            self.price_maturity = round(self.get_price_conventional_maturity() / self.amount, 3)
-            self.price = round(self.get_price_conventional() / self.amount, 3)
-            self.price_wook = round(self.get_price_wook() / self.amount, 3)
-            self.price_wook_tax = round(self.get_price_wook_tax() / self.amount, 3)
+            self.price_maturity = int(self.get_price_conventional_maturity() / self.amount * 1000) / 1000
+            self.price = int(self.get_price_conventional() / self.amount * 1000) / 1000
+            self.price_wook = int(self.get_price_wook() / self.amount * 1000) / 1000
+            self.price_wook_tax = int(self.get_price_wook_tax() / self.amount * 1000) / 1000
             price_is_given = False
         else:
             print('You should input one of information, price or discount rate')
@@ -1053,20 +1064,28 @@ class Bond:
         else:
             self.sale_price = self.get_sale_price_conventional(self.sale_discount_rate) / self.amount
 
-        price = int(self.price_maturity)
-        sale_price = int(self.sale_price) if self.sale_date != self.maturity_date else self.sale_price
-        self.capital_income_outset = (self.outset_valuation - price) * self.amount
-        self.capital_income_sale = (sale_price - self.sale_valuation) * self.amount
-        self.capital_difference_outset = self.outset_valuation - self.price_maturity
-        self.capital_difference_sale = self.sale_price - self.sale_valuation
-        self.capital_income_actual = (self.capital_difference_outset + self.capital_difference_sale) * self.amount
+        price = self.price_maturity if self.authentic_sale_but_not_maturity else int(self.price_maturity)
+        sale_price = int(self.sale_price)
+        if self.sale_date == self.maturity_date:
+            if self.sale_date_is_authentic:
+                sale_price = self.face_value
+            else:
+                sale_price = self.sale_price
 
+        self.capital_income_outset = int((self.outset_valuation - price) * self.amount)
+        self.capital_income_sale = int((sale_price - self.sale_valuation) * self.amount)
+        self.capital_difference_outset = self.outset_valuation - self.price_maturity
+        actual_sale_price = self.face_value if self.authentic_repayment else self.sale_price
+        self.capital_difference_sale = actual_sale_price - self.sale_valuation
+        self.capital_income_actual = (self.capital_difference_outset + self.capital_difference_sale) * self.amount
         self.capital_income = self.capital_income_outset + self.capital_income_sale
         self.interest_income = self.valuation_profit + self.coupon_profit
         self.total_income_actual = self.capital_income_actual + self.interest_income
         self.total_income = self.capital_income + self.interest_income
         self.capital_income_exhibit = int(self.total_income) - int(self.interest_income)
 
+        profit_rate_pretax = int(self.total_income / (price * self.amount) * 100 * 1000000) / 1000000
+        self.profit_rate_annual_pretax = int(profit_rate_pretax / (self.remaining_days / 365) * 1000) / 1000
         self.profit = self.total_income - self.tax
         self.profit_rate = int(self.profit / (price * self.amount) * 100 * 1000000) / 1000000
         self.profit_rate_annual = int(self.profit_rate / (self.remaining_days / 365) * 1000) / 1000
@@ -1099,7 +1118,7 @@ class Bond:
             print('\033[032mcoupon {} ({:,}) - [{:,}] {:,}\033[0m'.
                   format(str(coupon_date)[:10], int(self.untreated_coupon), self.middle_tax_base, self.middle_tax))
         print('\033[032mcoupon {} ({:,}) - [{:,}] {:,}\033[0m'.
-              format(str(self.coupon_days[-1])[:10], int(self.last_coupon), self.last_tax_base, self.last_tax))
+              format(str(self.coupon_days[-1])[:10], int(round(self.last_coupon, 6)), self.last_tax_base, self.last_tax))
 
         print('\033[031mvaluation at outset : {:,.3f} ({:,.3f}) [{:,.3f}]\033[0m'.
               format(self.outset_valuation, self.price_maturity, self.capital_difference_outset))
@@ -1115,8 +1134,16 @@ class Bond:
         print('profit rate: {:,.3f}%'.format(self.profit_rate))
         print('profit rate(CAGR): {:,.3f}%'.format(self.CAGR))
         print('profit rate(bank(C)): {:,.3f}%'.format(self.CAGR_bank))
-        print('\033[096mprofit rate(annual): {:,.3f}%\033[0m'.format(self.profit_rate_annual))
-        print('\033[096mprofit rate(bank(A)): {:,.3f}%\033[0m'.format(self.profit_rate_bank))
+
+        # print('profit rate(pretax): {:,.3f}%'.format(self.profit_rate_annual_pretax))
+        print('profit rate(pretax): {:,}%'.format(self.profit_rate_annual_pretax))
+
+        # print('\033[096mprofit rate(annual): {:,.3f}%\033[0m'.format(self.profit_rate_annual))
+        print('\033[096mprofit rate(annual): {:,}%\033[0m'.format(self.profit_rate_annual))
+
+        # print('\033[096mprofit rate(bank(A)): {:,.3f}%\033[0m'.format(self.profit_rate_bank))
+        print('\033[096mprofit rate(bank(A)): {:,}%\033[0m'.format(self.profit_rate_bank))
+
         print('\033[094mprice(S): {:,.3f}\033[0m'.format(self.sale_price))
         print('\033[094mdiscount rate(S): {:,}%\033[0m'.format(self.sale_discount_rate))
         if price_is_given:
@@ -1135,7 +1162,6 @@ class Bond:
             print('\033[093mprice(W): {:,}\033[0m'.format(self.price_wook))
             print('\033[093mprice(T): {:,}\033[0m'.format(self.price_wook_tax))
         print('============================')
-
 
 item = BondItem()
 item.set(c36)

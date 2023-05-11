@@ -1,4 +1,4 @@
 import math
 
-for i in range(1, 0):
-    print(i)
+a = round(3.547982, 4)
+print(a)

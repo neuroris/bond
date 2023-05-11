@@ -677,15 +677,15 @@ c36 = {
     'payment cycle': 3,
     'amount': 100,
     'price': 10010,
-    'discount rate': 3.938,
+    'discount rate': 3.915,
     'sale price': 0,
-    'sale discount rate': 3.938,
+    'sale discount rate': 3.915,
     'compound interest number': 5,
     'simple interest number': 2,
     'issue date': '20220907',
     'maturity date': '20240906',
     'outset date': '',
-    'sale date': '20240607'
+    'sale date': '20230511'
 }
 
 # untreated coupon
@@ -937,13 +937,13 @@ c49 = {
     'payment cycle': 3,
     'amount': 100,
     'price': 10100,
-    'discount rate': 3.595,
+    'discount rate': 3.572,
     'sale price': 0,
-    'sale discount rate': 3.595,
+    'sale discount rate': 3.572,
     'compound interest number': 5,
     'simple interest number': 2,
     'issue date': '20190823',
     'maturity date': '20240823',
     'outset date': '',
-    'sale date': ''
+    'sale date': '20230511'
 }
