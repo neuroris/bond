@@ -643,3 +643,41 @@ p34 = {
     'outset date': '',
     'sale date': ''
 }
+
+p35 = {
+    'name': '울산지역개발19-10',
+    'type': 'compound',
+    'coupon rate': 1.05,
+    'face value': 10000,
+    'payment cycle': 12,
+    'amount': 100,
+    'price': 0,
+    'discount rate': 3.365,
+    'sale price': 0,
+    'sale discount rate': 3.348,
+    'compound interest number': 5,
+    'simple interest number': 2,
+    'issue date': '20191031',
+    'maturity date': '20241031',
+    'outset date': '20240301',
+    'sale date': '20241031'
+}
+
+p36 = {
+    'name': '토지주택채권(용지)23-01',
+    'type': 'compound',
+    'coupon rate': 3.540,
+    'face value': 10000,
+    'payment cycle': 12,
+    'amount': 100,
+    'price': 0,
+    'discount rate': 3.411,
+    'sale price': 0,
+    'sale discount rate': 3.411,
+    'compound interest number': 5,
+    'simple interest number': 2,
+    'issue date': '20230131',
+    'maturity date': '20260131',
+    'outset date': '20230516',
+    'sale date': '20250131'
+}

@@ -675,17 +675,17 @@ c36 = {
     'coupon rate': 4.752,
     'face value': 10000,
     'payment cycle': 3,
-    'amount': 100,
+    'amount': 1,
     'price': 10010,
-    'discount rate': 3.915,
+    'discount rate': 3.986,
     'sale price': 0,
-    'sale discount rate': 3.915,
+    'sale discount rate': 3.986,
     'compound interest number': 5,
     'simple interest number': 2,
     'issue date': '20220907',
     'maturity date': '20240906',
     'outset date': '',
-    'sale date': '20230511'
+    'sale date': '20240707'
 }
 
 # untreated coupon
@@ -837,15 +837,15 @@ c44 = {
     'payment cycle': 3,
     'amount': 100,
     'price': 10048,
-    'discount rate': 4.030,
+    'discount rate': 3.688,
     'sale price': 0,
-    'sale discount rate': 0,
+    'sale discount rate': 3.688,
     'compound interest number': 5,
     'simple interest number': 2,
     'issue date': '20220916',
     'maturity date': '20240913',
-    'outset date': '20240718',
-    'sale date': ''
+    'outset date': '',
+    'sale date': '20230516'
 }
 
 # untreated coupon
@@ -937,13 +937,33 @@ c49 = {
     'payment cycle': 3,
     'amount': 100,
     'price': 10100,
-    'discount rate': 3.572,
+    'discount rate': 3.646,
     'sale price': 0,
-    'sale discount rate': 3.572,
+    'sale discount rate': 3.646,
     'compound interest number': 5,
     'simple interest number': 2,
     'issue date': '20190823',
     'maturity date': '20240823',
     'outset date': '',
-    'sale date': '20230511'
+    'sale date': '20240722'
+}
+
+# untreated coupon
+c50 = {
+    'name': '호텔롯데50-2',
+    'type': 'coupon',
+    'coupon rate': 1.737,
+    'face value': 10000,
+    'payment cycle': 3,
+    'amount': 10000,
+    'price': 10000,
+    'discount rate': 4.213,
+    'sale price': 0,
+    'sale discount rate': 4.213,
+    'compound interest number': 5,
+    'simple interest number': 2,
+    'issue date': '20200203',
+    'maturity date': '20250203',
+    'outset date': '20230519',
+    'sale date': '20230525'
 }
