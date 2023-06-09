@@ -149,3 +149,22 @@ s08 = {
     'outset date': '',
     'sale date': ''
 }
+
+s09 = {
+    'name': '서울도시철도23-01',
+    'type': 'compound-simple',
+    'coupon rate': 2.5,
+    'face value': 10000,
+    'payment cycle': 12,
+    'amount': 100,
+    'price': 10000,
+    'discount rate': 3.753,
+    'sale price': 0,
+    'sale discount rate': 3.95,
+    'compound interest number': 5,
+    'simple interest number': 2,
+    'issue date': '20230131',
+    'maturity date': '20300131',
+    'outset date': '20230530',
+    'sale date': '20300131'
+}

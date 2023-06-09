@@ -675,17 +675,17 @@ c36 = {
     'coupon rate': 4.752,
     'face value': 10000,
     'payment cycle': 3,
-    'amount': 1,
+    'amount': 100,
     'price': 10010,
-    'discount rate': 3.986,
+    'discount rate': 4.005,
     'sale price': 0,
-    'sale discount rate': 3.986,
+    'sale discount rate': 4.005,
     'compound interest number': 5,
     'simple interest number': 2,
     'issue date': '20220907',
     'maturity date': '20240906',
     'outset date': '',
-    'sale date': '20240707'
+    'sale date': '20240905'
 }
 
 # untreated coupon
@@ -955,15 +955,55 @@ c50 = {
     'coupon rate': 1.737,
     'face value': 10000,
     'payment cycle': 3,
-    'amount': 10000,
+    'amount': 100,
     'price': 10000,
-    'discount rate': 4.213,
+    'discount rate': 4.375,
     'sale price': 0,
-    'sale discount rate': 4.213,
+    'sale discount rate': 4.375,
     'compound interest number': 5,
     'simple interest number': 2,
     'issue date': '20200203',
     'maturity date': '20250203',
-    'outset date': '20230519',
-    'sale date': '20230525'
+    'outset date': '20230530',
+    'sale date': '20240201'
+}
+
+# untreated coupon
+c51 = {
+    'name': '케이비국민카드295-3',
+    'type': 'coupon',
+    'coupon rate': 1.860,
+    'face value': 10000,
+    'payment cycle': 3,
+    'amount': 100,
+    'price': 10000,
+    'discount rate': 3.866,
+    'sale price': 0,
+    'sale discount rate': 3.866,
+    'compound interest number': 5,
+    'simple interest number': 2,
+    'issue date': '20200128',
+    'maturity date': '20250228',
+    'outset date': '20230602',
+    'sale date': '20240228'
+}
+
+# untreated coupon
+c52 = {
+    'name': 'CJ ENM21-1',
+    'type': 'coupon',
+    'coupon rate': 1.824,
+    'face value': 10000,
+    'payment cycle': 3,
+    'amount': 100,
+    'price': 9857,
+    'discount rate': 3.577,
+    'sale price': 10040,
+    'sale discount rate': 19.856,
+    'compound interest number': 5,
+    'simple interest number': 2,
+    'issue date': '20210628',
+    'maturity date': '20240628',
+    'outset date': '20230728',
+    'sale date': '20240627'
 }

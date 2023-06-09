@@ -81,16 +81,16 @@ p05 = {
     'face value': 10000,
     'payment cycle': 3,
     'amount': 100,
-    'price': 10736,
-    'discount rate': 10,
-    'sale price': 0,
+    'price': 10814,
+    'discount rate': 0,
+    'sale price': 11899,
     'sale discount rate': 0,
     'compound interest number': 5,
     'simple interest number': 2,
     'issue date': '20221215',
     'maturity date': '20251215',
-    'outset date': '20241215',
-    'sale date': ''
+    'outset date': '20230609',
+    'sale date': '20240609'
 }
 
 p06 = {
@@ -101,15 +101,15 @@ p06 = {
     'payment cycle': 3,
     'amount': 100,
     'price': 10263,
-    'discount rate': 10,
+    'discount rate': 3.911,
     'sale price': 0,
-    'sale discount rate': 0,
+    'sale discount rate': 3.911,
     'compound interest number': 5,
     'simple interest number': 2,
     'issue date': '20221013',
     'maturity date': '20251013',
-    'outset date': '',
-    'sale date': ''
+    'outset date': '20230602',
+    'sale date': '20251013'
 }
 
 p07 = {
@@ -367,15 +367,15 @@ p20 = {
     'payment cycle': 3,
     'amount': 100,
     'price': 10151,
-    'discount rate': 10,
+    'discount rate': 3.447,
     'sale price': 0,
-    'sale discount rate': 0,
+    'sale discount rate': 3.447,
     'compound interest number': 5,
     'simple interest number': 2,
     'issue date': '20220928',
     'maturity date': '20270928',
-    'outset date': '',
-    'sale date': ''
+    'outset date': '20230525',
+    'sale date': '20250928'
 }
 
 p21 = {
@@ -652,15 +652,15 @@ p35 = {
     'payment cycle': 12,
     'amount': 100,
     'price': 0,
-    'discount rate': 3.365,
+    'discount rate': 3.544,
     'sale price': 0,
-    'sale discount rate': 3.348,
+    'sale discount rate': 3.544,
     'compound interest number': 5,
     'simple interest number': 2,
     'issue date': '20191031',
     'maturity date': '20241031',
-    'outset date': '20240301',
-    'sale date': '20241031'
+    'outset date': '20230526',
+    'sale date': '20230915'
 }
 
 p36 = {
@@ -678,6 +678,63 @@ p36 = {
     'simple interest number': 2,
     'issue date': '20230131',
     'maturity date': '20260131',
-    'outset date': '20230516',
-    'sale date': '20250131'
+    'outset date': '20230525',
+    'sale date': '20260130'
+}
+
+p37 = {
+    'name': '경기주택도시공사보상21-08-03가',
+    'type': 'compound',
+    'coupon rate': 1.000,
+    'face value': 10000,
+    'payment cycle': 12,
+    'amount': 100,
+    'price': 10000,
+    'discount rate': 3.731,
+    'sale price': 0,
+    'sale discount rate': 3.731,
+    'compound interest number': 5,
+    'simple interest number': 2,
+    'issue date': '20210831',
+    'maturity date': '20240831',
+    'outset date': '20230525',
+    'sale date': '20260131'
+}
+
+p38 = {
+    'name': '경기주택도시공사보상23-01가',
+    'type': 'compound',
+    'coupon rate': 3.540,
+    'face value': 10000,
+    'payment cycle': 12,
+    'amount': 100,
+    'price': 10000,
+    'discount rate': 0,
+    'sale price': 11000,
+    'sale discount rate': 0,
+    'compound interest number': 5,
+    'simple interest number': 2,
+    'issue date': '20230131',
+    'maturity date': '20260131',
+    'outset date': '20230131',
+    'sale date': '20240131'
+}
+
+p39 = {
+    'name': '현대캐피탈1943-3',
+    'type': 'compound',
+    'coupon rate': 5.857,
+    'face value': 10000,
+    'payment cycle': 3,
+    'amount': 100,
+    'price': 10151,
+    'discount rate': 3.447,
+    'sale price': 0,
+    'sale discount rate': 3.447,
+    'compound interest number': 5,
+    'simple interest number': 2,
+    'issue date': '20220928',
+    'maturity date': '20250928',
+    'outset date': '20240928',
+    'sale date': '20250928'
 }
