@@ -129,25 +129,28 @@ class Bond:
         self.remaining_days = (self.sale_date - self.outset_date).days
         self.remaining_delta = relativedelta(self.sale_date, self.outset_date)
         self.year_remainder = ((self.sale_date - relativedelta(years=self.remaining_delta.years)) - self.outset_date).days
+        self.maturity = True if self.sale_date == self.maturity_date else False
         self.term = relativedelta(months=item.payment_cycle)
         self.term_number = self.get_term_number(self.sale_date)
         self.coupon_number = self.get_coupon_number(self.sale_date)
+        self.payment_number = self.get_payment_number()
         self.maturity_coupon_number = self.get_coupon_number(self.maturity_date)
         self.unpaid_coupon_number = self.get_coupon_number(self.maturity_date, self.sale_date)
         self.coupon_days = self.get_coupon_days(self.coupon_number, self.sale_date)
         self.maturity_coupon_days = self.get_coupon_days(self.maturity_coupon_number, self.maturity_date)
         self.unpaid_coupon_days = self.get_coupon_days(self.unpaid_coupon_number, self.maturity_date, self.sale_date)
+        self.payment_days = self.get_payment_days()
         self.previous_coupon_date = self.get_previous_coupon_date()
         self.outset_interest_start_date = self.get_interest_start_date(self.outset_date)
         self.sale_interest_start_date = self.get_interest_start_date(self.sale_date)
         self.maturity_interest_start_date = self.get_interest_start_date(self.maturity_date)
+        self.maturity_sale_reference_date = self.get_interest_start_date(self.maturity_date - relativedelta(days=1))
         self.outset_fraction = self.get_coupon_fraction(self.outset_date)
         self.sale_fraction = self.get_coupon_fraction(self.sale_date)
         self.maturity_fraction = self.get_coupon_fraction(self.maturity_date)
         self.outset_date_is_authentic = self.check_authenticity(self.outset_date)
         self.sale_date_is_authentic = self.check_authenticity(self.sale_date)
         self.maturity_date_is_authentic = self.check_authenticity(self.maturity_date)
-        self.maturity = True if self.sale_date == self.maturity_date else False
         self.set_values()
         self.tax = self.get_tax()
 
@@ -177,6 +180,20 @@ class Bond:
         elif self.type == 'discount':
             coupon_number = 0
         return coupon_number
+
+    def get_payment_number(self):
+        payment_number = 0
+        if self.type == 'coupon':
+            prepaid_count = self.get_prepaid_count(self.outset_date)
+            last_count = self.get_prepaid_count(self.sale_date)
+            payment_number = last_count - prepaid_count
+        elif self.type == 'compound':
+            payment_number = 1 if self.maturity else 0
+        elif self.type == 'compound-simple':
+            payment_number = 1 if self.maturity else 0
+        elif self.type == 'discount':
+            payment_number = 0
+        return payment_number
 
     def get_prepaid_count(self, current_date, payment_cycle=None):
         payment_cycle = payment_cycle if payment_cycle else self.payment_cycle
@@ -248,6 +265,20 @@ class Bond:
             coupon_days.append(coupon_day)
         coupon_days.append(end_date)
         return coupon_days
+
+    def get_payment_days(self):
+        payment_days = list()
+        if self.type == 'coupon':
+            prepaid_count = self.get_prepaid_count(self.outset_date)
+            last_count = self.get_prepaid_count(self.sale_date)
+            payment_number = last_count - prepaid_count
+            for payment_index in range(payment_number):
+                payment_day = self.issue_date + self.term * (prepaid_count + (payment_index + 1))
+                payment_days.append(payment_day)
+        else:
+            if self.maturity:
+                payment_days.append(self.maturity_date)
+        return payment_days
 
     def set_values(self):
         if self.type == 'coupon':
@@ -541,35 +572,6 @@ class Bond:
 
         return dcv
 
-    def get_dcv(self, future_value, discount_rate, term_number, remainder_days, frequency=None, term=None, post_remainder=None):
-        f = frequency if frequency else self.frequency
-        r = discount_rate / 100
-        d = remainder_days
-        term = term if term else 365
-        R = post_remainder if post_remainder is not None else (365 / f)
-        term_number -= 1 if term_number or not post_remainder else 0
-
-        dcv = future_value / \
-              ((1 + (r / f) * (d / term)) * ((1 + r / f) ** term_number) * (1 + (r * (R / 365))))
-
-        return dcv
-
-    def get_price_conventional(self, discount_rate=None):
-        discount_rate = discount_rate if discount_rate else self.given_discount_rate
-        price = 0
-        if self.type == 'coupon':
-            for coupon_date in self.coupon_days[:-1]:
-                price += self.get_dcv_conventional(self.untreated_coupon, discount_rate, self.payment_cycle, coupon_date)
-            price += self.get_dcv_conventional(self.last_coupon, discount_rate, self.payment_cycle, self.sale_date)
-            price += self.get_dcv_conventional(self.maturity_value, discount_rate, self.payment_cycle, self.sale_date)
-        elif self.type == 'compound':
-            price += self.get_dcv_conventional(self.treated_coupon, discount_rate, 12, self.sale_date)
-            price += self.get_dcv_conventional(self.maturity_value, discount_rate, 12, self.sale_date)
-        elif self.type == 'compound-simple':
-            price += self.get_dcv_conventional(self.treated_coupon, discount_rate, 12, self.sale_date)
-            price += self.get_dcv_conventional(self.maturity_value, discount_rate, 12, self.sale_date)
-        return price
-
     def get_price_conventional_maturity(self, discount_rate=None):
         discount_rate = discount_rate if discount_rate else self.given_discount_rate
         price = 0
@@ -588,7 +590,7 @@ class Bond:
 
     def get_sale_price_conventional(self, discount_rate):
         discount_rate = discount_rate if discount_rate else self.given_sale_discount_rate
-        sale_date = self.maturity_interest_start_date if self.maturity and self.given_sale_price else self.sale_date
+        sale_date = self.maturity_sale_reference_date if self.maturity and self.given_sale_price else self.sale_date
         price = 0
         if self.type == 'coupon':
             cycle = self.payment_cycle
@@ -607,103 +609,115 @@ class Bond:
             price += self.get_dcv_sale(self.maturity_value, discount_rate, 12, self.maturity_date, sale_date)
         return price
 
+    def get_price_conventional(self, discount_rate=None):
+        discount_rate = discount_rate if discount_rate else self.given_discount_rate
+        price = 0
+        if self.type == 'coupon':
+            for payment_date in self.payment_days:
+                price += self.get_dcv_conventional(self.untreated_coupon, discount_rate, self.payment_cycle, payment_date)
+            sale_price = self.sale_price if self.maturity else int(self.sale_price)
+            sale_value = self.face_value * self.amount if self.sale_date_is_authentic else sale_price * self.amount
+            price += self.get_dcv_conventional(sale_value, discount_rate, self.payment_cycle, self.sale_date)
+        elif self.type == 'compound':
+            sale_value = int(self.sale_price) * self.amount
+            price += self.get_dcv_conventional(sale_value, discount_rate, 12, self.sale_date)
+        elif self.type == 'compound-simple':
+            sale_value = int(self.sale_price) * self.amount
+            price += self.get_dcv_conventional(sale_value, discount_rate, 12, self.sale_date)
+        return price
+
     def get_price_conventional_tax(self, discount_rate=None):
         discount_rate = discount_rate if discount_rate else self.given_discount_rate
         price = 0
         if self.type == 'coupon':
-            first_income = self.untreated_coupon - self.first_tax if self.coupon_number > 1 else 0
+            first_income = self.untreated_coupon - self.first_tax if self.payment_number >= 1 else 0
             price += self.get_dcv_conventional(first_income, discount_rate, self.payment_cycle, self.coupon_days[0])
-            for coupon_date in self.coupon_days[1:-1]:
+            for payment_date in self.payment_days[1:]:
                 middle_income = self.untreated_coupon - self.middle_tax
-                price += self.get_dcv_conventional(middle_income, discount_rate, self.payment_cycle, coupon_date)
-            last_income = (self.sale_assessment - self.face_value) * self.amount - self.last_tax
+                price += self.get_dcv_conventional(middle_income, discount_rate, self.payment_cycle, payment_date)
+            sale_price = self.sale_price if self.maturity else int(self.sale_price)
+            last_income = sale_price * self.amount - self.last_tax
             price += self.get_dcv_conventional(last_income, discount_rate, self.payment_cycle, self.sale_date)
-            price += self.get_dcv_conventional(self.maturity_value, discount_rate, self.payment_cycle, self.sale_date)
         elif self.type == 'compound':
-            coupon_income = self.treated_coupon - self.last_tax
-            price += self.get_dcv_conventional(coupon_income, discount_rate, 12, self.sale_date)
-            price += self.get_dcv_conventional(self.maturity_value, discount_rate, 12, self.sale_date)
+            net_sale_value = int(self.sale_price) * self.amount - self.last_tax
+            price += self.get_dcv_conventional(net_sale_value, discount_rate, 12, self.sale_date)
         elif self.type == 'compound-simple':
-            coupon_income = self.treated_coupon - self.last_tax
-            price += self.get_dcv_conventional(coupon_income, discount_rate, 12, self.sale_date)
-            price += self.get_dcv_conventional(self.maturity_value, discount_rate, 12, self.sale_date)
+            net_sale_value = int(self.sale_price) * self.amount - self.last_tax
+            price += self.get_dcv_conventional(net_sale_value, discount_rate, 12, self.sale_date)
         return price
 
     def get_price_theoretical(self, discount_rate=None):
         discount_rate = discount_rate if discount_rate else self.given_discount_rate
         price = 0
         if self.type == 'coupon':
-            for coupon_date in self.coupon_days[:-1]:
-                price += self.get_dcv_theoretical(self.untreated_coupon, discount_rate, self.payment_cycle, coupon_date)
-            price += self.get_dcv_theoretical(self.last_coupon, discount_rate, self.payment_cycle, self.sale_date)
-            price += self.get_dcv_theoretical(self.maturity_value, discount_rate, self.payment_cycle, self.sale_date)
+            for payment_date in self.payment_days:
+                price += self.get_dcv_theoretical(self.untreated_coupon, discount_rate, self.payment_cycle, payment_date)
+            sale_price = self.sale_price if self.maturity else int(self.sale_price)
+            sale_value = self.face_value * self.amount if self.sale_date_is_authentic else sale_price * self.amount
+            price += self.get_dcv_theoretical(sale_value, discount_rate, self.payment_cycle, self.sale_date)
         elif self.type == 'compound':
-            price += self.get_dcv_theoretical(self.treated_coupon, discount_rate, 12, self.sale_date)
-            price += self.get_dcv_theoretical(self.maturity_value, discount_rate, 12, self.sale_date)
+            sale_value = int(self.sale_price) * self.amount
+            price += self.get_dcv_theoretical(sale_value, discount_rate, 12, self.sale_date)
         elif self.type == 'compound-simple':
-            price += self.get_dcv_theoretical(self.treated_coupon, discount_rate, 12, self.sale_date)
-            price += self.get_dcv_theoretical(self.maturity_value, discount_rate, 12, self.sale_date)
+            sale_value = int(self.sale_price) * self.amount
+            price += self.get_dcv_theoretical(sale_value, discount_rate, 12, self.sale_date)
         return price
 
     def get_price_theoretical_tax(self, discount_rate=None):
         discount_rate = discount_rate if discount_rate else self.given_discount_rate
         price = 0
         if self.type == 'coupon':
-            first_income = self.untreated_coupon - self.first_tax if self.coupon_number > 1 else 0
+            first_income = self.untreated_coupon - self.first_tax if self.payment_number >= 1 else 0
             price += self.get_dcv_theoretical(first_income, discount_rate, self.payment_cycle, self.coupon_days[0])
-            for coupon_date in self.coupon_days[1:-1]:
+            for payment_date in self.payment_days[1:]:
                 middle_income = self.untreated_coupon - self.middle_tax
-                price += self.get_dcv_theoretical(middle_income, discount_rate, self.payment_cycle, coupon_date)
-            last_income = (self.sale_assessment - self.face_value) * self.amount - self.last_tax
+                price += self.get_dcv_theoretical(middle_income, discount_rate, self.payment_cycle, payment_date)
+            sale_price = self.sale_price if self.maturity else int(self.sale_price)
+            last_income = sale_price * self.amount - self.last_tax
             price += self.get_dcv_theoretical(last_income, discount_rate, self.payment_cycle, self.sale_date)
-            price += self.get_dcv_theoretical(self.maturity_value, discount_rate, self.payment_cycle, self.sale_date)
         elif self.type == 'compound':
-            income = self.treated_coupon - self.last_tax
-            price += self.get_dcv_theoretical(income, discount_rate, 12, self.sale_date)
-            price += self.get_dcv_theoretical(self.maturity_value, discount_rate, 12, self.sale_date)
+            net_sale_value = int(self.sale_price) * self.amount - self.last_tax
+            price += self.get_dcv_theoretical(net_sale_value, discount_rate, 12, self.sale_date)
         elif self.type == 'compound-simple':
-            income = self.treated_coupon - self.last_tax
-            price += self.get_dcv_theoretical(self.treated_coupon, discount_rate, 12, self.sale_date)
-            price += self.get_dcv_theoretical(self.maturity_value, discount_rate, 12, self.sale_date)
+            net_sale_value = int(self.sale_price) * self.amount - self.last_tax
+            price += self.get_dcv_theoretical(net_sale_value, discount_rate, 12, self.sale_date)
         return price
 
     def get_price_wook(self, discount_rate=None):
         discount_rate = discount_rate if discount_rate else self.given_discount_rate
         price = 0
         if self.type == 'coupon':
-            for coupon_date in self.coupon_days[:-1]:
-                price += self.get_dcv_theoretical(self.untreated_coupon, discount_rate, 12, coupon_date)
-            price += self.get_dcv_theoretical(self.last_coupon, discount_rate, 12, self.sale_date)
-            price += self.get_dcv_theoretical(self.maturity_value, discount_rate, 12, self.sale_date)
+            for payment_date in self.payment_days:
+                price += self.get_dcv_theoretical(self.untreated_coupon, discount_rate, 12, payment_date)
+            sale_price = self.sale_price if self.maturity else int(self.sale_price)
+            sale_value = self.face_value * self.amount if self.sale_date_is_authentic else sale_price * self.amount
+            price += self.get_dcv_theoretical(sale_value, discount_rate, 12, self.sale_date)
         elif self.type == 'compound':
-            price += self.get_dcv_theoretical(self.treated_coupon, discount_rate, 12, self.sale_date)
-            price += self.get_dcv_theoretical(self.maturity_value, discount_rate, 12, self.sale_date)
+            sale_value = int(self.sale_price) * self.amount
+            price += self.get_dcv_theoretical(sale_value, discount_rate, 12, self.sale_date)
         elif self.type == 'compound-simple':
-            price += self.get_dcv_theoretical(self.treated_coupon, discount_rate, 12, self.sale_date)
-            price += self.get_dcv_theoretical(self.maturity_value, discount_rate, 12, self.sale_date)
-
+            sale_value = int(self.sale_price) * self.amount
+            price += self.get_dcv_theoretical(sale_value, discount_rate, 12, self.sale_date)
         return price
 
     def get_price_wook_tax(self, discount_rate=None):
         discount_rate = discount_rate if discount_rate else self.given_discount_rate
         price = 0
         if self.type == 'coupon':
-            first_income = self.untreated_coupon - self.first_tax if self.coupon_number > 1 else 0
+            first_income = self.untreated_coupon - self.first_tax if self.payment_number >= 1 else 0
             price += self.get_dcv_theoretical(first_income, discount_rate, 12, self.coupon_days[0])
-            for coupon_date in self.coupon_days[1:-1]:
+            for payment_date in self.payment_days[1:]:
                 middle_income = self.untreated_coupon - self.middle_tax
-                price += self.get_dcv_theoretical(middle_income, discount_rate, 12, coupon_date)
-            last_income = (self.sale_assessment - self.face_value) * self.amount - self.last_tax
+                price += self.get_dcv_theoretical(middle_income, discount_rate, 12, payment_date)
+            sale_price = self.sale_price if self.maturity else int(self.sale_price)
+            last_income = sale_price * self.amount - self.last_tax
             price += self.get_dcv_theoretical(last_income, discount_rate, 12, self.sale_date)
-            price += self.get_dcv_theoretical(self.maturity_value, discount_rate, 12, self.sale_date)
         elif self.type == 'compound':
-            income = self.treated_coupon - self.last_tax
-            price += self.get_dcv_theoretical(income, discount_rate, 12, self.sale_date)
-            price += self.get_dcv_theoretical(self.maturity_value, discount_rate, 12, self.sale_date)
+            net_sale_value = int(self.sale_price) * self.amount - self.last_tax
+            price += self.get_dcv_theoretical(net_sale_value, discount_rate, 12, self.sale_date)
         elif self.type == 'compound-simple':
-            income = self.treated_coupon - self.last_tax
-            price += self.get_dcv_theoretical(income, discount_rate, 12, self.sale_date)
-            price += self.get_dcv_theoretical(self.maturity_value, discount_rate, 12, self.sale_date)
+            net_sale_value = int(self.sale_price) * self.amount - self.last_tax
+            price += self.get_dcv_theoretical(net_sale_value, discount_rate, 12, self.sale_date)
         return price
 
     def get_discount_rate_engine(self, get_price_func, purchase_value=None):
@@ -725,11 +739,8 @@ class Bond:
                 break
         return discount_rate
 
-    def get_discount_rate(self, purchase_value=None):
-        discount_rate = self.get_discount_rate_engine(self.get_price_conventional, purchase_value)
-        return discount_rate
-
     def get_discount_rate_maturity(self, purchase_value=None):
+        purchase_value = purchase_value if purchase_value else self.purchase_value
         discount_rate = self.get_discount_rate_engine(self.get_price_conventional_maturity, purchase_value)
         return discount_rate
 
@@ -737,28 +748,50 @@ class Bond:
         discount_rate = self.get_discount_rate_engine(self.get_sale_price_conventional, sale_value)
         return discount_rate
 
+    def get_discount_rate(self, purchase_value=None):
+        purchase_value = purchase_value if purchase_value else self.purchase_value
+        discount_rate = self.get_discount_rate_engine(self.get_price_conventional, purchase_value)
+        return discount_rate
+
     def get_discount_rate_tax(self, purchase_value=None):
+        purchase_value = purchase_value if purchase_value else self.purchase_value
         discount_rate = self.get_discount_rate_engine(self.get_price_conventional_tax, purchase_value)
         return discount_rate
 
     def get_discount_rate_theoretical(self, purchase_value=None):
+        purchase_value = purchase_value if purchase_value else self.purchase_value
         discount_rate = self.get_discount_rate_engine(self.get_price_theoretical, purchase_value)
         return discount_rate
 
     def get_discount_rate_theoretical_tax(self, purchase_value=None):
+        purchase_value = purchase_value if purchase_value else self.purchase_value
         discount_rate = self.get_discount_rate_engine(self.get_price_theoretical_tax, purchase_value)
         return discount_rate
 
     def get_discount_rate_wook(self, purchase_value=None):
+        purchase_value = purchase_value if purchase_value else self.purchase_value
         discount_rate = self.get_discount_rate_engine(self.get_price_wook, purchase_value)
         return discount_rate
 
     def get_discount_rate_wook_tax(self, purchase_value=None):
+        purchase_value = purchase_value if purchase_value else self.purchase_value
         discount_rate = self.get_discount_rate_engine(self.get_price_wook_tax, purchase_value)
         return discount_rate
 
-    def calculate_dcv_theoretical(self, future_value, discount_rate=None, remaining_days=None, frequency=None,
-                                  term=None):
+    def get_dcv(self, future_value, discount_rate, term_number, remainder_days, frequency=None, term=None, post_remainder=None):
+        f = frequency if frequency else self.frequency
+        r = discount_rate / 100
+        d = remainder_days
+        term = term if term else 365
+        R = post_remainder if post_remainder is not None else (365 / f)
+        term_number -= 1 if term_number or not post_remainder else 0
+
+        dcv = future_value / \
+              ((1 + (r / f) * (d / term)) * ((1 + r / f) ** term_number) * (1 + (r * (R / 365))))
+
+        return dcv
+
+    def calculate_dcv_theoretical(self, future_value, discount_rate=None, remaining_days=None, frequency=None, term=None):
         remaining_days = remaining_days if remaining_days is not None else self.remaining_days
         r = discount_rate if discount_rate is not None else self.given_discount_rate
         f = frequency if frequency else self.frequency
@@ -851,71 +884,30 @@ class Bond:
         self.estimate_profit()
         self.report()
 
-    def estimate_prices_deprecated(self):
-        if self.given_price and not self.given_discount_rate:
-            self.price_maturity = self.given_price
-            self.price = self.given_price
-            self.discount_rate_maturity = int(self.get_discount_rate_maturity() * 1000) / 1000
-            self.discount_rate = int(self.get_discount_rate() * 1000) / 1000
-            self.discount_rate_tax = int(self.get_discount_rate_tax() * 1000) / 1000
-            self.discount_rate_tax_bank = int(self.discount_rate_tax / 0.846 * 1000) / 1000
-            self.discount_rate_theoretical = int(self.get_discount_rate_theoretical() * 1000) / 1000
-            self.discount_rate_theoretical_tax = int(self.get_discount_rate_theoretical_tax() * 1000) / 1000
-            self.discount_rate_theoretical_tax_bank = int(self.discount_rate_theoretical_tax / 0.846 * 1000) / 1000
-            self.discount_rate_wook = int(self.get_discount_rate_wook() * 1000) / 1000
-            self.discount_rate_wook_tax = int(self.get_discount_rate_wook_tax() * 1000) / 1000
-            self.discount_rate_wook_tax_bank = int(self.discount_rate_wook_tax / 0.846 * 1000) / 1000
-        elif self.given_discount_rate:
-            self.discount_rate = self.given_discount_rate
-            self.price_maturity = int(self.get_price_conventional_maturity() / self.amount * 1000) / 1000
-            self.price = int(self.get_price_conventional() / self.amount * 1000) / 1000
-            self.price_tax = int(self.get_price_conventional_tax() / self.amount * 1000) / 1000
-            self.price_theoretical = int(self.get_price_theoretical() / self.amount * 1000) / 1000
-            self.price_theoretical_tax = int(self.get_price_theoretical_tax() / self.amount * 1000) / 1000
-            self.price_wook = int(self.get_price_wook() / self.amount * 1000) / 1000
-            self.price_wook_tax = int(self.get_price_wook_tax() / self.amount * 1000) / 1000
-            self.price_is_given = False
-        else:
-            print('You should input one of information, price or discount rate')
-            return
-
-        if self.given_sale_price and not self.given_sale_discount_rate:
-            self.sale_price = self.sale_assessment if self.maturity else self.given_sale_price
-            self.sale_discount_rate = int(self.get_sale_discount_rate(self.sale_price * self.amount) * 1000) / 1000
-        elif self.given_sale_discount_rate:
-            self.sale_discount_rate = self.given_sale_discount_rate
-            self.sale_price = self.get_sale_price_conventional(self.sale_discount_rate) / self.amount
-        else:
-            self.sale_price = self.get_sale_price_conventional(self.sale_discount_rate) / self.amount
-
-    def estimate_profit_deprecated(self):
-        price = int(self.price_maturity)
-        sale_price = self.sale_price if self.maturity else int(self.sale_price)
-        self.capital_income_outset = int(self.outset_valuation * self.amount) - price * self.amount
-        self.capital_income_sale = int(sale_price * self.amount - int(self.sale_assessment * self.amount))
-        self.capital_income = self.capital_income_outset + self.capital_income_sale
-        self.interest_income = self.valuation_profit + self.coupon_profit
-        self.total_income = self.capital_income + self.interest_income
-
-        self.capital_difference_outset = self.outset_valuation - self.price_maturity
-        self.capital_difference_sale = self.sale_price - self.sale_assessment
-        self.capital_income_actual = (self.capital_difference_outset + self.capital_difference_sale) * self.amount
-        self.total_income_actual = self.capital_income_actual + self.interest_income
-        self.capital_income_exhibit = int(self.total_income) - int(self.interest_income)
-
-        self.profit_rate_annual_pretax = int((self.total_income / (price * self.amount) * 100) / (self.remaining_days / 365) * 1000) / 1000
-        self.profit = self.total_income - self.tax
-        self.profit_rate = int(self.profit / (price * self.amount) * 100 * 100000) / 100000
-        self.profit_rate_annual = int((self.profit / (price * self.amount) * 100) / (self.remaining_days / 365) * 1000) / 1000
-        self.profit_rate_bank = int((self.profit / (price * self.amount) * 100) / (self.remaining_days / 365) / 0.846 * 1000) / 1000
-        self.CAGR = self.get_CAGR(price * self.amount, price * self.amount + self.profit, self.remaining_days) * 100
-        self.CAGR_bank = self.CAGR / 0.846
-
     def estimate_prices(self):
-        if self.given_price and not self.given_discount_rate:
+        if self.given_price:
             self.price_maturity = self.given_price
             self.price = self.given_price
             self.discount_rate_maturity = int(self.get_discount_rate_maturity() * 1000) / 1000
+        elif self.given_discount_rate:
+            self.discount_rate = self.given_discount_rate
+            self.price_maturity = int(self.get_price_conventional_maturity() / self.amount * 1000) / 1000
+            self.price_is_given = False
+        else:
+            print('You should input one of information, price or discount rate')
+            return
+
+        if self.given_sale_price:
+            self.sale_price = self.sale_assessment if self.maturity else self.given_sale_price
+            self.sale_discount_rate = int(self.get_sale_discount_rate(self.given_sale_price * self.amount) * 1000) / 1000
+        elif self.given_sale_discount_rate:
+            self.sale_price = self.get_sale_price_conventional(self.given_sale_discount_rate) / self.amount
+            self.sale_discount_rate = self.given_sale_discount_rate
+        else:
+            print('You should input one of information, sale price or sale discount rate')
+            return
+
+        if self.given_price:
             self.discount_rate = int(self.get_discount_rate() * 1000) / 1000
             self.discount_rate_tax = int(self.get_discount_rate_tax() * 1000) / 1000
             self.discount_rate_tax_bank = int(self.discount_rate_tax / 0.846 * 1000) / 1000
@@ -926,8 +918,6 @@ class Bond:
             self.discount_rate_wook_tax = int(self.get_discount_rate_wook_tax() * 1000) / 1000
             self.discount_rate_wook_tax_bank = int(self.discount_rate_wook_tax / 0.846 * 1000) / 1000
         elif self.given_discount_rate:
-            self.discount_rate = self.given_discount_rate
-            self.price_maturity = int(self.get_price_conventional_maturity() / self.amount * 1000) / 1000
             self.price = int(self.get_price_conventional() / self.amount * 1000) / 1000
             self.price_tax = int(self.get_price_conventional_tax() / self.amount * 1000) / 1000
             self.price_theoretical = int(self.get_price_theoretical() / self.amount * 1000) / 1000
@@ -935,18 +925,6 @@ class Bond:
             self.price_wook = int(self.get_price_wook() / self.amount * 1000) / 1000
             self.price_wook_tax = int(self.get_price_wook_tax() / self.amount * 1000) / 1000
             self.price_is_given = False
-        else:
-            print('You should input one of information, price or discount rate')
-            return
-
-        if self.given_sale_price and not self.given_sale_discount_rate:
-            self.sale_price = self.sale_assessment if self.maturity else self.given_sale_price
-            self.sale_discount_rate = int(self.get_sale_discount_rate(self.sale_price * self.amount) * 1000) / 1000
-        elif self.given_sale_discount_rate:
-            self.sale_discount_rate = self.given_sale_discount_rate
-            self.sale_price = self.get_sale_price_conventional(self.sale_discount_rate) / self.amount
-        else:
-            self.sale_price = self.get_sale_price_conventional(self.sale_discount_rate) / self.amount
 
     def estimate_profit(self):
         price = int(self.price_maturity)
@@ -1016,8 +994,7 @@ class Bond:
         print('profit rate(pretax): {:,}%'.format(self.profit_rate_annual_pretax))
         print('\033[096mprofit rate(annual): {:,}%\033[0m'.format(self.profit_rate_annual))
         print('\033[096mprofit rate(bank(A)): {:,}%\033[0m'.format(self.profit_rate_bank))
-
-        print('\033[094mprice(S): {:,.3f}\033[0m'.format(self.sale_price))
+        print('\033[094mprice(S): {:,.3f} ({:,})\033[0m'.format(self.sale_price, self.given_sale_price))
         print('\033[094mdiscount rate(S): {:,}%\033[0m'.format(self.sale_discount_rate))
         if self.price_is_given:
             print('\033[095mprice: {:,}\033[0m'.format(self.price))
@@ -1046,14 +1023,15 @@ item = BondItem()
 # item.set(c36)
 # item.set(c50)
 # item.set(c51)
-# item.set(s09)
 # item.set(c52)
+# item.set(c53)
+# item.set(s09)
 # item.set(p05)
-# item.set(p35)
-# item.set(p36)
-# item.set(p37)
-item.set(p38)
 # item.set(p06)
+# item.set(p35)
+item.set(p36)
+# item.set(p37)
+# item.set(p38)
 # item.set(p39)
 bond = Bond(item)
 bond.analyze()

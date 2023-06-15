@@ -996,14 +996,34 @@ c52 = {
     'face value': 10000,
     'payment cycle': 3,
     'amount': 100,
-    'price': 9857,
-    'discount rate': 3.577,
-    'sale price': 10040,
-    'sale discount rate': 19.856,
+    'price': 10000,
+    'discount rate': 3.860,
+    'sale price': 10045,
+    'sale discount rate': 3.860,
     'compound interest number': 5,
     'simple interest number': 2,
     'issue date': '20210628',
     'maturity date': '20240628',
-    'outset date': '20230728',
+    'outset date': '20230615',
     'sale date': '20240627'
+}
+
+# untreated coupon
+c53 = {
+    'name': '현대카드855',
+    'type': 'coupon',
+    'coupon rate': 4.463,
+    'face value': 10000,
+    'payment cycle': 1,
+    'amount': 100,
+    'price': 0,
+    'discount rate': 4.053,
+    'sale price': 0,
+    'sale discount rate': 4.053,
+    'compound interest number': 5,
+    'simple interest number': 2,
+    'issue date': '20220823',
+    'maturity date': '20250822',
+    'outset date': '20240615',
+    'sale date': '20250822'
 }
