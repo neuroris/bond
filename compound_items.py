@@ -652,7 +652,7 @@ p35 = {
     'payment cycle': 12,
     'amount': 100,
     'price': 0,
-    'discount rate': 3.544,
+    'discount rate': 4.116,
     'sale price': 0,
     'sale discount rate': 3.544,
     'compound interest number': 5,
@@ -670,15 +670,15 @@ p36 = {
     'face value': 10000,
     'payment cycle': 12,
     'amount': 100,
-    'price': 0,
-    'discount rate': 3.411,
+    'price': 10000,
+    'discount rate': 3.311,
     'sale price': 0,
     'sale discount rate': 3.411,
     'compound interest number': 5,
     'simple interest number': 2,
     'issue date': '20230131',
     'maturity date': '20260131',
-    'outset date': '20230131',
+    'outset date': '20230616',
     'sale date': '20260131'
 }
 

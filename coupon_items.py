@@ -996,16 +996,16 @@ c52 = {
     'face value': 10000,
     'payment cycle': 3,
     'amount': 100,
-    'price': 10000,
-    'discount rate': 3.860,
-    'sale price': 10045,
-    'sale discount rate': 3.860,
+    'price': 0,
+    'discount rate': 4.4,
+    'sale price': 0,
+    'sale discount rate': 3.809,
     'compound interest number': 5,
     'simple interest number': 2,
     'issue date': '20210628',
     'maturity date': '20240628',
-    'outset date': '20230615',
-    'sale date': '20240627'
+    'outset date': '20230619',
+    'sale date': '20240628'
 }
 
 # untreated coupon
@@ -1026,4 +1026,84 @@ c53 = {
     'maturity date': '20250822',
     'outset date': '20240615',
     'sale date': '20250822'
+}
+
+# untreated coupon
+c54 = {
+    'name': '케이비국민카드316-4',
+    'type': 'coupon',
+    'coupon rate': 1.532,
+    'face value': 10000,
+    'payment cycle': 3,
+    'amount': 100,
+    'price': 0,
+    'discount rate': 3.466,
+    'sale price': 0,
+    'sale discount rate': 2.866,
+    'compound interest number': 5,
+    'simple interest number': 2,
+    'issue date': '20201029',
+    'maturity date': '20241029',
+    'outset date': '20230616',
+    'sale date': '20241029'
+}
+
+# untreated coupon
+c55 = {
+    'name': '한국전력1006',
+    'type': 'coupon',
+    'coupon rate': 1.865,
+    'face value': 10000,
+    'payment cycle': 6,
+    'amount': 100,
+    'price': 0,
+    'discount rate': 4.2,
+    'sale price': 0,
+    'sale discount rate': 4.2,
+    'compound interest number': 5,
+    'simple interest number': 2,
+    'issue date': '20191125',
+    'maturity date': '20291125',
+    'outset date': '20230619',
+    'sale date': '20291125'
+}
+
+# untreated coupon
+c56 = {
+    'name': '현대카드855',
+    'type': 'coupon',
+    'coupon rate': 4.463,
+    'face value': 10000,
+    'payment cycle': 1,
+    'amount': 100,
+    'price': 0,
+    'discount rate': 3.78,
+    'sale price': 0,
+    'sale discount rate': 4.028,
+    'compound interest number': 5,
+    'simple interest number': 2,
+    'issue date': '20220823',
+    'maturity date': '20250822',
+    'outset date': '20230620',
+    'sale date': '20250822'
+}
+
+# untreated coupon
+c57 = {
+    'name': '롯데렌탈55-2(녹)',
+    'type': 'coupon',
+    'coupon rate': 2.250,
+    'face value': 10000,
+    'payment cycle': 3,
+    'amount': 100,
+    'price': 0,
+    'discount rate': 4.9,
+    'sale price': 0,
+    'sale discount rate': 4.510,
+    'compound interest number': 5,
+    'simple interest number': 2,
+    'issue date': '20210909',
+    'maturity date': '20260909',
+    'outset date': '20230619',
+    'sale date': '20260909'
 }

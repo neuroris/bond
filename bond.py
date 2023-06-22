@@ -106,6 +106,14 @@ class Bond:
         self.sale_discount_rate = 0.0
         self.price_is_given = True
 
+        self.duration = 0.0
+        self.modified_duration = 0.0
+        self.dollar_duration = 0.0
+        self.convexity = 0.0
+        self.dv01 = 0.0
+        self.positive_delta_price = 0
+        self.negative_delta_price = 0
+
         self.name = item.name
         self.type = item.type
         self.payment_cycle = item.payment_cycle
@@ -247,6 +255,15 @@ class Bond:
             coupon_fraction = (1 / self.frequency) * coupon_period / term
 
         return coupon_fraction
+
+    def get_year_fraction(self, start_date, end_date):
+        remaining_delta = relativedelta(end_date, start_date)
+        year_end_date = start_date + relativedelta(years=remaining_delta.years)
+        term_end_date = year_end_date + relativedelta(years=1)
+        term = (term_end_date - year_end_date).days
+        remaining_days = (end_date - year_end_date).days
+        fraction = remaining_delta.years + remaining_days / term
+        return fraction
 
     def check_authenticity(self, end_date):
         delta = relativedelta(end_date, self.issue_date)
@@ -539,7 +556,7 @@ class Bond:
 
         return pre_term, pre_remainder, TN, post_term, post_remainder
 
-    def get_dcv_theoretical(self, future_value, discount_rate=None, payment_cycle=None, payment_date=None, outset_date=None):
+    def get_dcv_theoretical_deprecated(self, future_value, discount_rate=None, payment_cycle=None, payment_date=None, outset_date=None):
         outset_date = outset_date if outset_date else self.outset_date
         payment_date = payment_date if payment_date else self.maturity_date
         payment_cycle = payment_cycle if payment_cycle else self.payment_cycle
@@ -571,6 +588,90 @@ class Bond:
               ((1 + (r / f)) ** ((pre_remainder / pre_term) + TN + (post_remainder / post_term)))
 
         return dcv
+
+    def get_dcv_theoretical(self, future_value, discount_rate=None, payment_cycle=None, payment_date=None, outset_date=None):
+        outset_date = outset_date if outset_date else self.outset_date
+        payment_date = payment_date if payment_date else self.maturity_date
+        payment_cycle = payment_cycle if payment_cycle else self.payment_cycle
+        r = discount_rate / 100 if discount_rate else self.given_discount_rate / 100
+        f = 12 / payment_cycle
+
+        pre_term, pre_remainder, TN, post_term, post_remainder = \
+            self.parse_theoretical_terms(payment_cycle, payment_date, outset_date, False)
+
+        dcv = future_value / \
+              ((1 + (r / f)) ** ((pre_remainder / pre_term) + TN + (post_remainder / post_term)))
+
+        return dcv
+
+    def parse_theoretical_terms(self, payment_cycle=None, payment_date=None, outset_date=None, correct_leap_year=False):
+        term_delta = relativedelta(months=payment_cycle)
+        one_day = relativedelta(days=1)
+
+        issue_outset_cycles = self.get_raw_prepaid_count(outset_date, payment_cycle)
+        pre_term_start_count = int(issue_outset_cycles)
+        term_start_count = pre_term_start_count + 1
+        issue_payment_cycles = self.get_raw_prepaid_count(payment_date, payment_cycle)
+        post_term_end_count = math.ceil(issue_payment_cycles)
+        term_end_count = post_term_end_count - 1
+
+        term_number = term_end_count - term_start_count
+        TN = term_number if term_number > 0 else 0
+        pre_term_date = self.issue_date + pre_term_start_count * term_delta
+        term_start_date = self.issue_date + term_start_count * term_delta
+        term_end_date = self.issue_date + term_end_count * term_delta
+        post_term_date = self.issue_date + post_term_end_count * term_delta
+        last_term = False if term_start_date <= term_end_date else True
+
+        # Leap year correction
+        if correct_leap_year:
+            pre_term_is_leap_year = True if (term_start_date - pre_term_date).days == 366 else False
+            pre_term_is_last_year = True if (term_end_date - term_start_date).days == 0 else False
+            full_leap_year = True if (term_start_date - outset_date).days == 366 else False
+            last_term_is_leap_year = True if (term_end_date - term_start_date).days == 366 else False
+            full_year = True if (post_term_date - term_end_date).days == 0 else False
+            if pre_term_is_leap_year and pre_term_is_last_year and not full_leap_year:
+                pre_term_date = pre_term_date + one_day
+            elif pre_term_is_leap_year and pre_term_is_last_year and full_leap_year:
+                pre_term_date = pre_term_date - term_delta
+                term_start_date = term_start_date - term_delta + one_day
+                TN += 1
+            elif last_term_is_leap_year and full_year:
+                term_start_date += one_day
+
+        pre_term = (term_start_date - pre_term_date).days
+        pre_remainder = (min(term_start_date, payment_date) - outset_date).days if not last_term else 0
+        post_term = (post_term_date - term_end_date).days
+        post_remainder = (payment_date - max(term_end_date, outset_date)).days
+
+        return pre_term, pre_remainder, TN, post_term, post_remainder
+
+    def get_theoretical_time_fraction(self, payment_cycle=None, payment_date=None, outset_date=None, correct_leap_year=False):
+        payment_cycle = payment_cycle if payment_cycle else self.payment_cycle
+        payment_date = payment_date if payment_date else self.maturity_date
+        outset_date = outset_date if outset_date else self.outset_date
+
+        pre_term, pre_remainder, TN, post_term, post_remainder = \
+            self.parse_theoretical_terms(payment_cycle, payment_date, outset_date, False)
+
+        time_fraction = (pre_remainder / pre_term) + TN + (post_remainder / post_term)
+
+        return time_fraction
+
+    def get_time_fraction(self, payment_cycle=None, payment_date=None, outset_date=None, correct_leap_year=False):
+        payment_cycle = payment_cycle if payment_cycle else self.payment_cycle
+        payment_date = payment_date if payment_date else self.maturity_date
+        outset_date = outset_date if outset_date else self.outset_date
+        f = 12 / payment_cycle
+
+        pre_term, pre_remainder, TN, post_term, post_remainder = \
+            self.parse_terms(payment_cycle, payment_date, outset_date, False)
+
+        # ((1 + (r / f) * (pre_remainder / pre_term)) * ((1 + r / f) ** TN) * (1 + (r * (post_remainder / 365))))
+
+        time_fraction = (pre_remainder / pre_term) + TN + (post_remainder / (365 / f))
+
+        return time_fraction
 
     def get_price_conventional_maturity(self, discount_rate=None):
         discount_rate = discount_rate if discount_rate else self.given_discount_rate
@@ -882,6 +983,7 @@ class Bond:
     def analyze(self):
         self.estimate_prices()
         self.estimate_profit()
+        self.estimate_duration()
         self.report()
 
     def estimate_prices(self):
@@ -890,8 +992,9 @@ class Bond:
             self.price = self.given_price
             self.discount_rate_maturity = int(self.get_discount_rate_maturity() * 1000) / 1000
         elif self.given_discount_rate:
-            self.discount_rate = self.given_discount_rate
             self.price_maturity = int(self.get_price_conventional_maturity() / self.amount * 1000) / 1000
+            self.discount_rate = self.given_discount_rate
+            self.discount_rate_maturity = self.given_discount_rate
             self.price_is_given = False
         else:
             print('You should input one of information, price or discount rate')
@@ -951,6 +1054,36 @@ class Bond:
             (self.profit / (price * self.amount) * 100) / (self.remaining_days / 365) / 0.846 * 1000) / 1000
         self.CAGR = self.get_CAGR(price * self.amount, price * self.amount + self.profit, self.remaining_days) * 100
         self.CAGR_bank = self.CAGR / 0.846
+
+    def estimate_duration(self):
+        discount_rate = self.discount_rate_maturity
+        r = discount_rate / self.frequency / 100
+        r1 = 0.01
+        bp1 = 0.0001
+        if self.type == 'coupon':
+            weighted_dcv = 0
+            total_dcv = 0
+            convexity_denominator = 0
+            for coupon_date in self.maturity_coupon_days[:-1]:
+                dcv = self.get_dcv_conventional(self.untreated_coupon, discount_rate, self.payment_cycle, coupon_date)
+                time_fraction = self.get_time_fraction(self.payment_cycle, coupon_date)
+                total_dcv += dcv
+                weighted_dcv += dcv * time_fraction
+                convexity_denominator += dcv * time_fraction * (time_fraction + 1)
+            dcv = self.get_dcv_conventional(self.maturity_untreated_coupon + self.maturity_value, discount_rate)
+            time_fraction = self.get_time_fraction(self.payment_cycle, self.maturity_date)
+            total_dcv += dcv
+            weighted_dcv += dcv * time_fraction
+            convexity_denominator += dcv * time_fraction * (time_fraction + 1)
+            self.duration = int(weighted_dcv / total_dcv / self.frequency * 1000) / 1000
+            self.convexity = int((convexity_denominator / total_dcv) / ((1 + r) ** 2) / (self.frequency ** 2) * 1000) / 1000
+        else:
+            self.duration = int(self.get_year_fraction(self.outset_date, self.maturity_date) * 1000) / 1000
+        self.modified_duration = int((self.duration / (1 + r)) * 1000) / 1000
+        self.dollar_duration = int(self.modified_duration * self.price_maturity * 1000) / 1000
+        self.positive_delta_price = int((self.modified_duration * r1 + (1/2) * self.convexity * (r1**2)) * 100 * 1000) / 1000
+        self.negative_delta_price = int((-self.modified_duration * r1 + (1/2) * self.convexity * (r1**2)) * 100 * 1000) / 1000
+        self.dv01 = int((self.modified_duration * bp1 - (1/2) * self.convexity * (bp1**2)) * 100 * 1000000) / 1000000
 
     def report(self):
         print('=========================')
@@ -1019,17 +1152,29 @@ class Bond:
             print('\033[093mprice(X): {:,}\033[0m'.format(self.price_wook_tax))
         print('============================')
 
+        print('duration(O): {:,}'.format(self.duration))
+        print('\033[096mduration(M): {:,}\033[0m'.format(self.modified_duration))
+        # print('duration(D): {:,}'.format(self.dollar_duration))
+        print('\033[096mconvexity: {:,}\033[0m'.format(self.convexity))
+        print('PD price (1%): {:>6,}%'.format(self.positive_delta_price))
+        print('ND price (1%): {:>6,}%'.format(self.negative_delta_price))
+        print('DV01: {:,}'.format(self.dv01))
+
 item = BondItem()
 # item.set(c36)
 # item.set(c50)
 # item.set(c51)
 # item.set(c52)
 # item.set(c53)
+# item.set(c54)
+# item.set(c55)
+# item.set(c56)
+item.set(c57)
 # item.set(s09)
 # item.set(p05)
 # item.set(p06)
 # item.set(p35)
-item.set(p36)
+# item.set(p36)
 # item.set(p37)
 # item.set(p38)
 # item.set(p39)
