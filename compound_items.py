@@ -81,16 +81,16 @@ p05 = {
     'face value': 10000,
     'payment cycle': 3,
     'amount': 100,
-    'price': 10814,
-    'discount rate': 0,
-    'sale price': 11899,
-    'sale discount rate': 0,
+    'price': 0,
+    'discount rate': 4.075,
+    'sale price': 0,
+    'sale discount rate': 4.075,
     'compound interest number': 5,
     'simple interest number': 2,
     'issue date': '20221215',
     'maturity date': '20251215',
-    'outset date': '20230609',
-    'sale date': '20240609'
+    'outset date': '20230623',
+    'sale date': '20251215'
 }
 
 p06 = {
@@ -613,15 +613,15 @@ p33 = {
     'face value': 10000,
     'payment cycle': 12,
     'amount': 100,
-    'price': 10000,
-    'discount rate': 3.511,
+    'price': 0,
+    'discount rate': 3.983,
     'sale price': 0,
-    'sale discount rate': 3.511,
+    'sale discount rate': 3.983,
     'compound interest number': 5,
     'simple interest number': 2,
     'issue date': '20220531',
     'maturity date': '20250531',
-    'outset date': '',
+    'outset date': '20230623',
     'sale date': '20240530'
 }
 
@@ -708,16 +708,16 @@ p38 = {
     'face value': 10000,
     'payment cycle': 12,
     'amount': 100,
-    'price': 10000,
-    'discount rate': 0,
-    'sale price': 11000,
-    'sale discount rate': 0,
+    'price': 0,
+    'discount rate': 5.0,
+    'sale price': 0,
+    'sale discount rate': 3.983,
     'compound interest number': 5,
     'simple interest number': 2,
     'issue date': '20230131',
     'maturity date': '20260131',
-    'outset date': '20230131',
-    'sale date': '20240131'
+    'outset date': '20230616',
+    'sale date': '20260131'
 }
 
 p39 = {

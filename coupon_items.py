@@ -1057,14 +1057,14 @@ c55 = {
     'payment cycle': 6,
     'amount': 100,
     'price': 0,
-    'discount rate': 4.2,
+    'discount rate': 4.13,
     'sale price': 0,
-    'sale discount rate': 4.2,
+    'sale discount rate': 3.944,
     'compound interest number': 5,
     'simple interest number': 2,
     'issue date': '20191125',
     'maturity date': '20291125',
-    'outset date': '20230619',
+    'outset date': '20230623',
     'sale date': '20291125'
 }
 
